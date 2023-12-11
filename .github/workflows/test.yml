@@ -1,4 +1,4 @@
-name: Publish Python 🐍 distributions 📦 to PyPI
+name: Code Tests
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   test-on-linux:
-    name: Install and test Python 🐍 distributions 📦
+    name: Test on Linux 🐧
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -34,7 +34,7 @@ jobs:
         run: >-
           echo "Linux Tests Finished"
   test-on-windows:
-    name: Install and test Python 🐍 distributions 📦
+    name: Test on Windows 🪟
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@master
@@ -44,7 +44,7 @@ jobs:
           python-version: 3.8
       - name: Install Poetry
         run: >-
-          curl -sSL https://install.python-poetry.org | python3 -
+          pip install poetry
       - name: Install basic dependencies
         run: >-
           poetry install
