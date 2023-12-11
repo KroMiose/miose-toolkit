@@ -2,8 +2,8 @@ name: Publish Python 🐍 distributions 📦 to PyPI
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches:
+      - main
 
 jobs:
   test-on-linux:
@@ -60,25 +60,3 @@ jobs:
       - name: Finish
         run: >-
           echo "Windows Tests Finished"
-  build-n-publish:
-    name: Build and publish Python 🐍 distributions 📦 to PyPI
-    runs-on: ubuntu-latest
-    needs:
-      - test-on-linux
-      - test-on-windows
-    steps:
-      - uses: actions/checkout@master
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
-      - name: Install Poetry
-        run: >-
-          curl -sSL https://install.python-poetry.org | python3 -
-      - name: Build a binary wheel and a source tarball
-        run: >-
-          poetry run build
-      - name: Publish to PyPI
-        run: >-
-          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-          && poetry run build && poetry publish

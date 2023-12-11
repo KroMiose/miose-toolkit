@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 import aiohttp
 import requests
@@ -18,7 +18,7 @@ class MFetch:
         url,
         method: str = "get",
         params: Optional[Dict] = None,
-        data: str | Dict = "{}",
+        data: Union[str, Dict] = "{}",
         headers: Optional[Dict] = None,
         proxy_server: str = "",
         timeout: int = 60,
@@ -56,7 +56,7 @@ class MFetch:
         url,
         method: str = "get",
         params: Optional[Dict] = None,
-        data: str | Dict = "{}",
+        data: Union[str, Dict] = "{}",
         headers: Optional[Dict] = None,
         proxy_server: str = "",
         timeout: int = 60,
