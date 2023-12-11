@@ -91,7 +91,7 @@ def test_package(package: str):
             else:
                 print("No tests found. Skipping...")
 
-            print(f"Package {pkg_name} test passed.")
+            print(f"Package {pkg_name} test passed.\n")
         else:
             print("No pyproject.toml found. Skipping...")
 
@@ -113,7 +113,7 @@ def build_package(package: str):
                 print(f"Package {pkg_name} build failed.")
                 exit(1)
 
-            print(f"Package {pkg_name} build success!")
+            print(f"Package {pkg_name} build success!\n")
         else:
             print("No pyproject.toml found. Skipping...")
 
@@ -135,6 +135,6 @@ def publish_package(package: str):
                 print(f"Package {pkg_name} publish failed.")
                 exit(1)
 
-            print(f"Package {pkg_name} publish success!")
+            print(f"Package {pkg_name} publish success!\n")
         else:
             print("No pyproject.toml found. Skipping...")

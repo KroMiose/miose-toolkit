@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..src import MConvert
+    from ..miose_toolkit_common import MConvert
 else:
-    from src import MConvert
+    from miose_toolkit_common import MConvert
 
 
 def test_convert():

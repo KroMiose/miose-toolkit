@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..src import MDict
+    from ..miose_toolkit_common import MDict
 else:
-    from src import MDict
+    from miose_toolkit_common import MDict
 
 
 def test_dict():

@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..src import MUrl
+    from ..miose_toolkit_common import MUrl
 else:
-    from src import MUrl
+    from miose_toolkit_common import MUrl
 
 
 def test_url():
@@ -38,7 +38,7 @@ def test_url():
     }
 
     assert MUrl.get_url_params(
-        "http://example.com?quote=%E4%B8%AD%E6%96%87", False
+        "http://example.com?quote=%E4%B8%AD%E6%96%87", False,
     ) == {
         "quote": "%E4%B8%AD%E6%96%87",
     }

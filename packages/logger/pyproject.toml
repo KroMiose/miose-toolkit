@@ -10,7 +10,7 @@ python = "^3.8, <3.11"
 loguru = "^0.7.0"
 
 [tool.poetry.scripts]
-test = "tests:main"
+test = "src.tests:main"
 
 [build-system]
 requires = ["poetry-core"]

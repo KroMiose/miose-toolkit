@@ -21,7 +21,7 @@ def main():
         file_path = current_path / file
         print(f"Running {idx + 1}/{len(test_files)}: {file_path}")
         # 导入测试模块
-        mod = import_module(f".{file[:-3]}", "tests")
+        mod = import_module(f".{file[:-3]}", "src.tests")
         # 遍历测试模块中的所有 test_* 方法
         for attr in dir(mod):
             if attr.startswith("test_"):
