@@ -2,7 +2,7 @@ name: Publish to PyPI
 
 on:
   release:
-    types: [published]
+    types: [created]
 
 jobs:
   build-n-publish:
@@ -20,7 +20,15 @@ jobs:
       - name: Build a binary wheel and a source tarball
         run: >-
           poetry run build
-      - name: Publish to PyPI
+      - name: PyPI Setup
         run: >-
           poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-          && poetry run build && poetry publish
+      - name: Code Test
+        run: >-
+          poetry run test
+      - name: Build Package
+        run: >-
+          poetry run build
+      - name: Publish Package
+        run: >-
+          poetry run publish
