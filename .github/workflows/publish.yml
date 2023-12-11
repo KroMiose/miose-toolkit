@@ -3,7 +3,7 @@ name: Publish Python 🐍 distributions 📦 to PyPI
 on:
   push:
     tags:
-      - "*"
+      - "v*.*.*"
 
 jobs:
   build-n-publish:
@@ -24,4 +24,4 @@ jobs:
       - name: Publish to PyPI
         run: >-
           poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-          && poetry run publish
+          && poetry run build && poetry publish

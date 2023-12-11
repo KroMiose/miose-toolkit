@@ -146,6 +146,7 @@ dmypy.json
 .idea
 
 # Temp out
+temp
 temp*.db
 **/temp*.db
 
