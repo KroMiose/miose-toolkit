@@ -1,0 +1,67 @@
+[tool.poetry]
+name = "miose-toolkit"
+version = "0.0.0"
+description = ""
+authors = ["KroMiose <li_xiangff@163.com>"]
+readme = "README.md"
+packages = [{ include = "tools" }]
+
+[tool.poetry.dependencies]
+python = "^3.8, <3.11"
+miose-toolkit-common = { path = "packages/common/" }
+miose-toolkit-logger = { path = "packages/logger/" }
+
+[tool.poetry.scripts]
+install = "tools.run_install:main"
+test = "tools.run_test:main"
+build = "tools.run_build:main"
+publish = "tools.run_publish:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+extend-exclude = []
+ignore = [
+  "E501",
+  "E722",
+  "F401",
+  "F403",
+  "B008",
+  "B905",
+  "TID252",
+  "TRY002",
+  "TRY003",
+  "RUF001",
+  "RUF002",
+  "RUF003",
+  "RUF006",
+  "RUF100",
+  "PGH003",
+  "N801",
+  "A003",
+]
+select = [
+  "F",
+  "E",
+  "I",
+  "B",
+  "A",
+  "COM",
+  "C4",
+  "ISC",
+  "PIE",
+  "PYI",
+  "Q",
+  "RSE",
+  "RET",
+  "SLF",
+  "SIM",
+  "TID",
+  "ARG",
+  "PTH",
+  "PGH",
+  "TRY",
+  "RUF",
+]

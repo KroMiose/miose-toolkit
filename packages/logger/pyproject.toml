@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "miose-toolkit-logger"
+version = "0.0.0"
+description = "Miose Toolkit 日志模块"
+authors = ["KroMiose <li_xiangff@163.com>"]
+packages = [{ include = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.8, <3.11"
+loguru = "^0.7.0"
+
+[tool.poetry.scripts]
+test = "tests:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

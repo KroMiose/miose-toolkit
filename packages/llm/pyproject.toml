@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "miose-toolkit-llm"
+version = "0.0.1"
+description = ""
+authors = ["KroMiose <li_xiangff@163.com>"]
+packages = [{ include = "src", from = "." }]
+
+[tool.poetry.dependencies]
+python = "^3.8, <3.11"
+miose-toolkit-common = "^0.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
