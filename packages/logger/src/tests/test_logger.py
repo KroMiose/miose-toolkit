@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -35,7 +36,25 @@ def test_logger():
 
     # logger.info("This message will be printed twice.")
 
+    # 测试日志输出到文件
+    temp_dir = Path("./temp")
+    logger.set_log_output(temp_dir / "test_logger.log", True)
+    logger.info("(Logger Test) This message will be printed to file.")
+    logger.set_log_output(temp_dir / "test_logger.log", False)
+    logger.info("(Logger Test) This message will not be printed to console.")
+    assert (temp_dir / "test_logger.log").exists()
+    with (temp_dir / "test_logger.log").open("r") as file:
+        assert "(Logger Test) This message will be printed to file." in file.read()
+        assert (
+            "(Logger Test) This message will not be printed to console."
+            not in file.read()
+        )
+        file.close()
+    logger.unset_log_output()
+
     logger.success("(Logger Test) This is a success message.")
+
+    (temp_dir / "test_logger.log").unlink(True)
 
 
 def main():
