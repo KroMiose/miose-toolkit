@@ -1,3 +1,4 @@
+import contextlib
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -23,7 +24,8 @@ def test_config():
     Path("./temp/test_configs/config.dev.yaml").unlink(True)
     Path("./temp/test_configs/config.test.yaml").unlink(True)
     Path("./temp/test_configs/config.prod.yaml").unlink(True)
-    Path("./temp/test_configs").rmdir()
+    with contextlib.suppress(OSError):
+        Path("./temp/test_configs").rmdir()
 
     # 测试配置模板
     class TestConfigTemplate(Config):
