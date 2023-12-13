@@ -788,7 +788,7 @@ dev = ["Sphinx (==7.2.5)", "colorama (==0.4.5)", "colorama (==0.4.6)", "exceptio
 
 [[package]]
 name = "miose-toolkit-common"
-version = "0.0.2"
+version = "0.0.3"
 description = "Miose Toolkit 通用模块"
 optional = false
 python-versions = "^3.8, <3.11"
@@ -809,7 +809,7 @@ url = "packages/common"
 
 [[package]]
 name = "miose-toolkit-logger"
-version = "0.0.2"
+version = "0.0.3"
 description = "Miose Toolkit 日志模块"
 optional = false
 python-versions = "^3.8, <3.11"
