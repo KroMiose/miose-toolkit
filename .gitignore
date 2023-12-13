@@ -147,7 +147,7 @@ dmypy.json
 
 # Temp out
 temp
-temp*.db
+*temp.db
 **/temp*.db
 
 # Outputs

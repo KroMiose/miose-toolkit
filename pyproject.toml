@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "miose-toolkit"
-version = "0.0.3"
+version = "0.0.4"
 description = ""
 authors = ["KroMiose <li_xiangff@163.com>"]
 readme = "README.md"
@@ -10,9 +10,11 @@ packages = [{ include = "tools" }]
 python = "^3.8, <3.11"
 miose-toolkit-common = { path = "packages/common/" }
 miose-toolkit-logger = { path = "packages/logger/" }
+miose-toolkit-db = { path = "packages/db/" }
 
 [tool.poetry.scripts]
 install = "tools.run_install:main"
+clean = "tools.run_clean:main"
 test = "tools.run_test:main"
 build = "tools.run_build:main"
 publish = "tools.run_publish:main"

@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "miose-toolkit-db"
+version = "0.0.1"
+description = "Miose Toolkit 数据库模块"
+authors = ["KroMiose <li_xiangff@163.com>"]
+packages = [{ include = "miose_toolkit_db", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.8, <3.11"
+pymysql = "^1.1.0"
+sqlalchemy = "^2.0.23"
+
+[tool.poetry.scripts]
+test = "src.tests:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
