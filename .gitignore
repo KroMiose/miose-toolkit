@@ -153,3 +153,8 @@ temp
 # Outputs
 outputs/**
 !outputs/yiheda_category.json
+
+# VSCode
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json

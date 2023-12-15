@@ -117,6 +117,30 @@ def test_package(package: str):
     print(f"Package {pkg_name} test passed.\n")
 
 
+def debug_package(package: str):
+    """调试包"""
+    install_package(package)
+
+    with enter_package(package):
+        pkg_name, pkg_version = get_current_pkg()
+        # 执行测试调试
+        pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
+        if "test" in pyproject:
+            print("Running debug cases...")
+            try:
+                # 使用vsc调试中间件命令运行测试用例
+                python_path = Path(".venv/Scripts/python.exe").absolute()
+
+                # assert 
+            except AssertionError:
+                print(f"Package {pkg_name} debug failed.")
+                exit(1)
+        else:
+            print("No debug cases found. Skipping...")
+
+    print(f"Package {pkg_name} test passed.\n")
+
+
 def build_package(package: str):
     """构建包"""
     install_package(package)

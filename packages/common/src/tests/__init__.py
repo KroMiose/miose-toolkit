@@ -27,3 +27,7 @@ def main():
             if attr.startswith("test_"):
                 # 执行测试方法
                 getattr(mod, attr)()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,35 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "debug common",
+      "type": "python",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/packages/common",
+      "module": "src.tests.__init__",
+      "args": [],
+      "justMyCode": false
+    },
+    {
+      "name": "debug db",
+      "type": "python",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/packages/db",
+      "module": "src.tests.__init__",
+      "args": [],
+      "justMyCode": false
+    },
+    {
+      "name": "debug logger",
+      "type": "python",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/packages/logger",
+      "module": "src.tests.__init__",
+      "args": [],
+      "justMyCode": false
+    },
+  ]
+}
