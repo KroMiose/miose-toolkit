@@ -34,7 +34,7 @@ jobs:
         run: >-
           echo "Linux Tests Finished"
   test-on-windows:
-    name: Test on Windows 🪟
+    name: Test on Windows 🖥
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@master
