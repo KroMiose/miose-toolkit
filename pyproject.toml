@@ -16,7 +16,6 @@ miose-toolkit-db = { path = "packages/db/" }
 install = "tools.run_install:main"
 clean = "tools.run_clean:main"
 test = "tools.run_test:main"
-debug = "tools.run_debug:main"
 build = "tools.run_build:main"
 publish = "tools.run_publish:main"
 
