@@ -71,7 +71,7 @@ jobs:
           python-version: 3.8
       - name: Install Poetry
         run: >-
-          curl -sSL https://install.python-poetry.org | python3 -
+          pip install poetry
       - name: Install basic dependencies
         run: >-
           poetry install
