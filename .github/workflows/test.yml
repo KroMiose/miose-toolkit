@@ -60,3 +60,30 @@ jobs:
       - name: Finish
         run: >-
           echo "Windows Tests Finished"
+  test-on-mac:
+    name: Test on Mac 🍎
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install Poetry
+        run: >-
+          curl -sSL https://install.python-poetry.org | python3 -
+      - name: Install basic dependencies
+        run: >-
+          poetry install
+      - name: Run installs
+        run: >-
+          poetry run install
+      - name: Run tests
+        run: >-
+          poetry run test
+      - name: Run builds
+        run: >-
+          poetry run build
+      - name: Finish
+        run: >-
+          echo "Mac Tests Finished"
