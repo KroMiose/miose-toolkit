@@ -48,7 +48,7 @@ class MDb:
             self._Base = declarative_base()
 
             # 初始化数据库连接:
-            self._engine = create_engine(db_url)
+            self._engine = create_engine(db_url, pool_pre_ping=True)
 
             self._connection = self._engine.connect()
 
