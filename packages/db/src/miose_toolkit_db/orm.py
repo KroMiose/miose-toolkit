@@ -13,16 +13,24 @@ except ImportError:
     import json
 
 
-class MDb:
-    def __init__(self, db_url: str) -> None:
+class MioOrm:
+    def __init__(self, db_url: str, **kwarg) -> None:
         """初始化数据库连接
 
         :param db_url: 数据库连接 URL
+        :param kwarg: 数据库连接参数
+            例如:
+                - pool_pre_ping: False  # 每次连接前检查连接是否有效
+                - pool_size: 10  # 连接池大小
+                - max_overflow: 20  # 超过连接池大小后最多创建的连接数
+                - pool_recycle: 3600  # 连接回收时间 (秒)
         """
         if db_url.startswith("sqlite:///"):
             root = db_url.replace("sqlite:///", "").rsplit("/", 1)[0]
             Path(root).mkdir(parents=True, exist_ok=True)
-        self._create_db_connection(db_url)
+        self._db_url = db_url
+        self._db_args = kwarg
+        self._create_db_connection(db_url, **kwarg)
 
         database_type = db_url.split("://")[0]
 
@@ -48,7 +56,7 @@ class MDb:
             self._Base = declarative_base()
 
             # 初始化数据库连接:
-            self._engine = create_engine(db_url, pool_pre_ping=True)
+            self._engine = create_engine(db_url, **self._db_args)
 
             self._connection = self._engine.connect()
 
@@ -57,6 +65,11 @@ class MDb:
         except Exception:
             print("Failed to create database connection")
             raise
+
+    def reconnect(self) -> None:
+        """重新连接数据库"""
+        self.close_db_connection()
+        self._create_db_connection(self._db_url, **self._db_args)
 
     def close_db_connection(self) -> None:
         """关闭数据库连接"""

@@ -51,7 +51,7 @@ sqlite_url = gen_sqlite_db_url(db_path="test.db")
 
 ```python
 from miose_toolkit_db import (
-    MDb,
+    MioOrm,
     gen_sqlite_db_url,
 )
 
@@ -62,7 +62,7 @@ from sqlalchemy import (
 )
 
 # 创建数据库连接 (以 SQLite 为例，可搭配数据库链接生成器使用其它数据库)
-db = MDb(gen_sqlite_db_url("test.db"))
+db = MioOrm(gen_sqlite_db_url("test.db"))
 
 # 定义数据模型
 @db.reg_predefine_data_model(table_name="test", primary_key="id")

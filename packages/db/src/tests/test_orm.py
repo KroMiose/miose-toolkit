@@ -5,12 +5,12 @@ from sqlalchemy import Column, String
 
 if TYPE_CHECKING:
     from ..miose_toolkit_db import (
-        MDb,
+        MioOrm,
         gen_sqlite_db_url,
     )
 else:
     from miose_toolkit_db import (
-        MDb,
+        MioOrm,
         gen_sqlite_db_url,
     )
 
@@ -21,8 +21,8 @@ def test_orm():
     Path("test2.temp.db").unlink(True)
 
     # 创建数据库连接
-    db1 = MDb(gen_sqlite_db_url("test1.temp.db"))
-    db2 = MDb(gen_sqlite_db_url("test2.temp.db"))
+    db1 = MioOrm(gen_sqlite_db_url("test1.temp.db"))
+    db2 = MioOrm(gen_sqlite_db_url("test2.temp.db"))
 
     @db1.reg_predefine_data_model(table_name="test", primary_key="id")
     class DBTest1:
