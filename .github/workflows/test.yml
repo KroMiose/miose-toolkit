@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  test-on-linux:
-    name: Test on Linux 🐧
+  test-on-linux-py38:
+    name: Test on Linux 🐧 With Python 3.8
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -21,8 +21,6 @@ jobs:
       - name: Install basic dependencies
         run: >-
           poetry install
-      - name: Run installs
-        run: >-
           poetry run install
       - name: Run tests
         run: >-
@@ -30,12 +28,171 @@ jobs:
       - name: Run builds
         run: >-
           poetry run build
-      - name: Finish
-        run: >-
           echo "Linux Tests Finished"
-  test-on-windows:
-    name: Test on Windows 🖥
+  test-on-linux-py39:
+    name: Test on Linux 🐧 With Python 3.9
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+      - name: Install Poetry
+        run: >-
+          curl -sSL https://install.python-poetry.org | python3 -
+      - name: Install basic dependencies
+        run: >-
+          poetry install
+          poetry run install
+      - name: Run tests
+        run: >-
+          poetry run test
+      - name: Run builds
+        run: >-
+          poetry run build
+          echo "Linux Tests Finished"
+  test-on-linux-py310:
+    name: Test on Linux 🐧 With Python 3.10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.10
+      - name: Install Poetry
+        run: >-
+          curl -sSL https://install.python-poetry.org | python3 -
+      - name: Install basic dependencies
+        run: >-
+          poetry install
+          poetry run install
+      - name: Run tests
+        run: >-
+          poetry run test
+      - name: Run builds
+        run: >-
+          poetry run build
+          echo "Linux Tests Finished"
+  test-on-linux-py311:
+    name: Test on Linux 🐧 With Python 3.11
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.11
+      - name: Install Poetry
+        run: >-
+          curl -sSL https://install.python-poetry.org | python3 -
+      - name: Install basic dependencies
+        run: >-
+          poetry install
+          poetry run install
+      - name: Run tests
+        run: >-
+          poetry run test
+      - name: Run builds
+        run: >-
+          poetry run build
+          echo "Linux Tests Finished"
+  test-on-windows-py38:
+    name: Test on Windows 🖥 With Python 3.8
     runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Install Poetry
+        run: >-
+          pip install poetry
+      - name: Install basic dependencies
+        run: >-
+          poetry install
+          poetry run install
+      - name: Run tests
+        run: >-
+          poetry run test
+      - name: Run builds
+        run: >-
+          poetry run build
+          echo "Windows Tests Finished"
+  test-on-windows-py39:
+    name: Test on Windows 🖥 With Python 3.9
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+      - name: Install Poetry
+        run: >-
+          pip install poetry
+      - name: Install basic dependencies
+        run: >-
+          poetry install
+          poetry run install
+      - name: Run tests
+        run: >-
+          poetry run test
+      - name: Run builds
+        run: >-
+          poetry run build
+          echo "Windows Tests Finished"
+  test-on-windows-py310:
+    name: Test on Windows 🖥 With Python 3.10
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.10
+      - name: Install Poetry
+        run: >-
+          pip install poetry
+      - name: Install basic dependencies
+        run: >-
+          poetry install
+          poetry run install
+      - name: Run tests
+        run: >-
+          poetry run test
+      - name: Run builds
+        run: >-
+          poetry run build
+          echo "Windows Tests Finished"
+  test-on-windows-py311:
+    name: Test on Windows 🖥 With Python 3.11
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.11
+      - name: Install Poetry
+        run: >-
+          pip install poetry
+      - name: Install basic dependencies
+        run: >-
+          poetry install
+          poetry run install
+      - name: Run tests
+        run: >-
+          poetry run test
+      - name: Run builds
+        run: >-
+          poetry run build
+          echo "Windows Tests Finished"
+  test-on-mac-py38:
+    name: Test on Mac 🍎 With Python 3.8
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@master
       - name: Set up Python 3.8
@@ -59,16 +216,70 @@ jobs:
           poetry run build
       - name: Finish
         run: >-
-          echo "Windows Tests Finished"
-  test-on-mac:
-    name: Test on Mac 🍎
+          echo "Mac Tests Finished"
+  test-on-mac-py39:
+    name: Test on Mac 🍎 With Python 3.9
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@master
-      - name: Set up Python 3.8
+      - name: Set up Python 3.9
         uses: actions/setup-python@v1
         with:
-          python-version: 3.8
+          python-version: 3.9
+      - name: Install Poetry
+        run: >-
+          pip install poetry
+      - name: Install basic dependencies
+        run: >-
+          poetry install
+      - name: Run installs
+        run: >-
+          poetry run install
+      - name: Run tests
+        run: >-
+          poetry run test
+      - name: Run builds
+        run: >-
+          poetry run build
+      - name: Finish
+        run: >-
+          echo "Mac Tests Finished"
+  test-on-mac-py310:
+    name: Test on Mac 🍎 With Python 3.10
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.10
+      - name: Install Poetry
+        run: >-
+          pip install poetry
+      - name: Install basic dependencies
+        run: >-
+          poetry install
+      - name: Run installs
+        run: >-
+          poetry run install
+      - name: Run tests
+        run: >-
+          poetry run test
+      - name: Run builds
+        run: >-
+          poetry run build
+      - name: Finish
+        run: >-
+          echo "Mac Tests Finished"
+  test-on-mac-py311:
+    name: Test on Mac 🍎 With Python 3.11
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.11
       - name: Install Poetry
         run: >-
           pip install poetry
