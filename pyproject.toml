@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "miose-toolkit"
-version = "0.0.10"
+version = "0.0.11"
 description = ""
 authors = ["KroMiose <li_xiangff@163.com>"]
 readme = "README.md"

@@ -116,5 +116,6 @@ for arg in sys.argv[1:]:
                 break
         else:
             raise Exception(f'环境变量 "{target_env}" 不存在')
+        break
 else:
     APP_ENV = Env.Default.value
