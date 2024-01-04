@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "miose-toolkit-logger"
-version = "0.0.3"
+version = "0.0.4"
 description = "Miose Toolkit 日志模块"
 authors = ["KroMiose <li_xiangff@163.com>"]
 packages = [{ include = "miose_toolkit_logger", from = "src" }]
 
 [tool.poetry.dependencies]
-python = "^3.8, <3.11"
+python = "^3.8, <3.12"
 loguru = "^0.7.0"
 
 [tool.poetry.scripts]

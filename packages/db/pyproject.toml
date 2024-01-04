@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "miose-toolkit-db"
-version = "0.0.3"
+version = "0.0.4"
 description = "Miose Toolkit 数据库模块"
 authors = ["KroMiose <li_xiangff@163.com>"]
 packages = [{ include = "miose_toolkit_db", from = "src" }]
 
 [tool.poetry.dependencies]
-python = "^3.8, <3.11"
+python = "^3.8, <3.12"
 pymysql = "^1.1.0"
 sqlalchemy = "^2.0.23"
 
