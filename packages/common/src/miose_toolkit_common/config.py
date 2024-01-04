@@ -111,8 +111,9 @@ for arg in sys.argv[1:]:
     if arg.startswith("env="):
         target_env = arg.split("=")[-1]
         for env in Env:
-            if env.value == target_env:
+            if env.value.lower() == target_env.lower():
                 APP_ENV = env.value
+                break
         else:
             raise Exception(f'环境变量 "{target_env}" 不存在')
 else:
