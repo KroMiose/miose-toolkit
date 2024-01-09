@@ -92,10 +92,12 @@ class Config(BaseModel):
             config_path.parent.mkdir(parents=True, exist_ok=True)
             if config_path.exists():
                 # 如果配置文件存在，则只补充缺失的配置项
-                obj = self.load_config()
-                self.__dict__.update(obj.__dict__)
+                origin_config = yaml.safe_load(config_path.read_text())
+                for key, value in self.__dict__.items():
+                    if key not in origin_config:
+                        origin_config[key] = value
                 config_path.write_text(
-                    yaml.dump(self.model_dump(), allow_unicode=True, sort_keys=False),
+                    yaml.dump(origin_config, allow_unicode=True, sort_keys=False),
                 )
             else:
                 config_path.write_text(
