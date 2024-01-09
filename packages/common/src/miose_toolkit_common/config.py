@@ -90,9 +90,17 @@ class Config(BaseModel):
         for env in envs:
             config_path = _config_root / f"config.{env}.yaml"
             config_path.parent.mkdir(parents=True, exist_ok=True)
-            config_path.write_text(
-                yaml.dump(self.model_dump(), allow_unicode=True, sort_keys=False),
-            )
+            if config_path.exists():
+                # 如果配置文件存在，则只补充缺失的配置项
+                obj = self.load_config()
+                self.__dict__.update(obj.__dict__)
+                config_path.write_text(
+                    yaml.dump(self.model_dump(), allow_unicode=True, sort_keys=False),
+                )
+            else:
+                config_path.write_text(
+                    yaml.dump(self.model_dump(), allow_unicode=True, sort_keys=False),
+                )
 
     def reload_config(self):
         """重新加载配置"""
