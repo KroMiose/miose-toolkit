@@ -40,14 +40,14 @@ def test_config():
     config.a = 2
     config.dump_config()
     config = TestConfigTemplate.load_config()
-    assert config.a == 2
+    assert config.a == 1
     assert config.b == "b"
     config.a = 3
     config.dump_config([Env.Dev.value])
 
-    # 验证导出配置
+    # 验证导出配置模板
     load_data = yaml.safe_load(Path("./temp/test_configs/config.dev.yaml").read_text())
-    assert load_data["a"] == 3
+    assert load_data["a"] == 1
     assert load_data["b"] == "b"
 
     # 测试重载配置

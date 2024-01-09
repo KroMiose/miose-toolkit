@@ -884,10 +884,10 @@ dev = ["Sphinx (==7.2.5)", "colorama (==0.4.5)", "colorama (==0.4.6)", "exceptio
 
 [[package]]
 name = "miose-toolkit-common"
-version = "0.0.5"
+version = "0.0.10"
 description = "Miose Toolkit 通用模块"
 optional = false
-python-versions = "^3.8, <3.11"
+python-versions = "^3.8, <3.12"
 files = []
 develop = false
 
@@ -905,10 +905,10 @@ url = "packages/common"
 
 [[package]]
 name = "miose-toolkit-db"
-version = "0.0.1"
+version = "0.0.4"
 description = "Miose Toolkit 数据库模块"
 optional = false
-python-versions = "^3.8, <3.11"
+python-versions = "^3.8, <3.12"
 files = []
 develop = false
 
@@ -922,10 +922,10 @@ url = "packages/db"
 
 [[package]]
 name = "miose-toolkit-logger"
-version = "0.0.3"
+version = "0.0.4"
 description = "Miose Toolkit 日志模块"
 optional = false
-python-versions = "^3.8, <3.11"
+python-versions = "^3.8, <3.12"
 files = []
 develop = false
 
@@ -2124,5 +2124,5 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.8, <3.11"
-content-hash = "a10b955d7b9237a13cdea5968bbc1d27e832feda0c3dc53904fcc9e2ed2e3ca2"
+python-versions = "^3.8, <3.12"
+content-hash = "7912b610d2f3bb3fc1cb8a5a902bc432554e1c9e7411f1e5b7a3f617178671ed"
