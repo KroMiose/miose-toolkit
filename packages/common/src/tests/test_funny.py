@@ -8,7 +8,7 @@ if TYPE_CHECKING:
         async_advance_call,
     )
 else:
-    from miose_toolkit_common import (
+    from src.miose_toolkit_common import (
         advance_call,
         advance_class_call,
         async_advance_call,

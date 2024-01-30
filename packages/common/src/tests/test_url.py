@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..miose_toolkit_common import MUrl
 else:
-    from miose_toolkit_common import MUrl
+    from src.miose_toolkit_common import MUrl
 
 
 def test_url():

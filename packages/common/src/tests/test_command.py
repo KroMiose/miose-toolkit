@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..miose_toolkit_common import CmdOpt, CommandMaster
 else:
-    from miose_toolkit_common import CmdOpt, CommandMaster
+    from src.miose_toolkit_common import CmdOpt, CommandMaster
 
 
 def test_command():

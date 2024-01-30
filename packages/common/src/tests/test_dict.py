@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..miose_toolkit_common import MDict
 else:
-    from miose_toolkit_common import MDict
+    from src.miose_toolkit_common import MDict
 
 
 def test_dict():

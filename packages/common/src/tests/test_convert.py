@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..miose_toolkit_common import MConvert
 else:
-    from miose_toolkit_common import MConvert
+    from src.miose_toolkit_common import MConvert
 
 
 def test_convert():

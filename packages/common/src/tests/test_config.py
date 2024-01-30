@@ -13,7 +13,7 @@ except ImportError:
 if TYPE_CHECKING:
     from ..miose_toolkit_common import APP_ENV, Config, Env
 else:
-    from miose_toolkit_common import APP_ENV, Config, Env
+    from src.miose_toolkit_common import APP_ENV, Config, Env
 
 
 def test_config():
