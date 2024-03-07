@@ -1,18 +1,19 @@
 [tool.poetry]
 name = "miose-toolkit-common"
-version = "0.1.1"
+version = "0.1.2"
 description = "Miose Toolkit 通用模块"
 authors = ["KroMiose <li_xiangff@163.com>"]
 packages = [{ include = "miose_toolkit_common", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.8, <3.12"
-aiohttp = "^3.8.6"
+aiohttp = "^3.9.2"
 ujson = "^5.8.0"
 requests = "^2.31.0"
 poetry = "^1.6.1"
 pydantic = "^2.4.2"
 pyyaml = "^6.0.1"
+cryptography = ">=42.0.4"
 
 [tool.poetry.scripts]
 test = "src.tests:main"
