@@ -1,7 +1,7 @@
 import inspect
 from typing import Any, Callable, Dict, List, Optional, Type, Union
 
-from .list import MList
+from .list import advance_split
 
 _FORBIDDEN_CHARACTERS = [
     " ",
@@ -377,10 +377,10 @@ class CommandMaster:
         """
 
         # 解析命令
-        command_split = MList.advance_split(command_text, " ", True)
+        command_split = advance_split(command_text, " ", True)
 
         for route, command in self._commands.items():
-            route_split = MList.advance_split(route, "/")
+            route_split = advance_split(route, "/")
 
             # 匹配命令路由
             if len(route_split) > len(command_split) or route != "/".join(

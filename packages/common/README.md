@@ -132,12 +132,12 @@ res = await Mfetch.async_fetch(
 一些常用的字典操作，例如：字典合并等
 
 ```python
-from miose_toolkit_common import MDict
+from miose_toolkit_common import merge_dicts
 
 # 字典合并
 dict1 = {"a": 1}
 dict2 = {"b": 2}
-dict3 = MDict.merge_dicts(dict1, dict2) # 后面的字典会覆盖前面的字典
+dict3 = merge_dicts(dict1, dict2) # 后面的字典会覆盖前面的字典
 ```
 
 ### 6. Url 操作
@@ -145,20 +145,26 @@ dict3 = MDict.merge_dicts(dict1, dict2) # 后面的字典会覆盖前面的字�
 一些常用的 Url 操作，例如：获取 Url 参数等
 
 ```python
-from miose_toolkit_common import MUrl
+from miose_toolkit_common import (
+    drop_url_anchor,
+    get_url_domain,
+    get_url_params,
+    get_url_path,
+    is_relative_url,
+)
 
 # 获取 Url 参数
-params = MUrl.get_url_params("http://example.com?a=1&b=2")
+params = get_url_params("http://example.com?a=1&b=2")
 
 # 获取 Url 域名
-domain = MUrl.get_url_domain("http://example.com")
+domain = get_url_domain("http://example.com")
 
 # 获取 Url 路径
-path = MUrl.get_url_path("http://example.com/path/to")
+path = get_url_path("http://example.com/path/to")
 
 # 去除 Url 锚点
-url = MUrl.drop_url_anchor("http://example.com#anchor")
+url = drop_url_anchor("http://example.com#anchor")
 
 # 判断 Url 是否为相对路径
-is_relative_url = MUrl.is_relative_url("/path/to")
+is_relative_url = is_relative_url("/path/to")
 ```

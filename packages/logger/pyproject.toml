@@ -6,7 +6,7 @@ authors = ["KroMiose <li_xiangff@163.com>"]
 packages = [{ include = "miose_toolkit_logger", from = "src" }]
 
 [tool.poetry.dependencies]
-python = "^3.8, <3.12"
+python = ">=3.8, <3.12"
 loguru = "^0.7.0"
 
 [tool.poetry.scripts]

@@ -60,11 +60,11 @@ def test_config():
     assert config.b == "c"
 
     # 测试生成配置结构
-
+    print(config.gen_config_schema())
     assert json.dumps(config.gen_config_schema()) == json.dumps(
         {
-            "a": {"default": 1, "title": "A", "type": "integer"},
-            "b": {"default": "b", "title": "B", "type": "string"},
+            "a": {"title": "A", "default": 1,"type": "integer"},
+            "b": {"title": "B", "default": "b","type": "string"},
         },
     )
 

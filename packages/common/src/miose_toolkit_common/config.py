@@ -6,8 +6,10 @@ from typing import List, Optional, Union
 import yaml
 from pydantic import BaseModel
 
-_config_root = Path("./configs")
+from .common import Version, get_pkg_version
 
+__pydantic_version__: Version = Version(get_pkg_version("pydantic"))
+_config_root: Path = Path("./configs")
 
 class Env(Enum):
     """预设环境变量"""
@@ -46,14 +48,18 @@ class Config(BaseModel):
         config_path.parent.mkdir(parents=True, exist_ok=True)
         try:
             with config_path.open("r") as file:
-                # obj = cls.parse_obj(yaml.safe_load(file))
-                obj = cls.model_validate(yaml.safe_load(file))
+                if __pydantic_version__ < Version("2.0.0"):  # 兼容旧版本的 pydantic
+                    obj = cls.parse_obj(yaml.safe_load(file))
+                else:
+                    obj = cls.model_validate(yaml.safe_load(file))
         except Exception:
             if create_if_not_exists:
                 cls.dump_config_template()
                 return cls.load_config(False)
             raise
         try:
+            if __pydantic_version__ < Version("2.0.0"):
+                return cls.parse_obj(obj)
             return cls.model_validate(obj)
         except Exception as e:
             raise Exception(f"配置文件格式错误: {e}") from e
@@ -114,6 +120,8 @@ class Config(BaseModel):
 
         :return: 配置结构
         """
+        if __pydantic_version__ < Version("2.0.0"):
+            return self.schema()["properties"]
         return self.__class__.model_json_schema()["properties"]
 
 
