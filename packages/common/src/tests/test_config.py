@@ -61,12 +61,10 @@ def test_config():
 
     # 测试生成配置结构
     print(config.gen_config_schema())
-    assert json.dumps(config.gen_config_schema()) == json.dumps(
-        {
-            "a": {"title": "A", "default": 1,"type": "integer"},
-            "b": {"title": "B", "default": "b","type": "string"},
-        },
-    )
+    assert config.gen_config_schema() == {
+        "a": {"title": "A", "default": 1,"type": "integer"},
+        "b": {"title": "B", "default": "b","type": "string"},
+    }
 
     # 删除测试用的临时文件
     Path("./temp/test_configs/config.dev.yaml").unlink(True)
