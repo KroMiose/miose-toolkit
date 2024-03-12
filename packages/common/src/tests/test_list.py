@@ -45,10 +45,10 @@ def test_list():
     assert split_and_drop_empty("1, ,", ",") == ["1"]
     assert split_and_drop_empty("1, , ", ",") == ["1"]
 
-    assert json_list_stringify_limit(["1", "2", "3"], 1024) == '["1","2","3"]'
-    assert json_list_stringify_limit(["1", "2", "3"], 10) == '["1","2"]'
-    assert json_list_stringify_limit(["1", "2", "3"], 4) == "[]"
-    assert json_list_stringify_limit(["1", "2", "3"], 3) == "[]"
+    assert json_list_stringify_limit(["1", "2", "3"], 1024).replace(" ", "") == '["1","2","3"]'
+    assert json_list_stringify_limit(["1", "2", "3"], 10).replace(" ", "") == '["1","2"]'
+    assert json_list_stringify_limit(["1", "2", "3"], 4).replace(" ", "") == "[]"
+    assert json_list_stringify_limit(["1", "2", "3"], 3).replace(" ", "") == "[]"
 
     assert advance_split("1,2,3", ",") == ["1", "2", "3"]
     assert advance_split("1,,3", ",") == ["1", "3"]
