@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "miose-toolkit-logger"
-version = "0.0.6"
+version = "0.0.7"
 description = "Miose Toolkit 日志模块"
 authors = ["KroMiose <li_xiangff@163.com>"]
 packages = [{ include = "miose_toolkit_logger", from = "src" }]
