@@ -7,9 +7,11 @@ import yaml
 from pydantic import BaseModel
 
 from .common import Version, get_pkg_version
+from .exceptions import ConfigStructureError
 
 __pydantic_version__: Version = Version(get_pkg_version("pydantic"))
 _config_root: Path = Path("./configs")
+
 
 class Env(Enum):
     """预设环境变量"""
@@ -47,11 +49,14 @@ class Config(BaseModel):
         config_path = _config_root / f"config.{APP_ENV}.yaml"
         config_path.parent.mkdir(parents=True, exist_ok=True)
         try:
-            with config_path.open("r") as file:
-                if __pydantic_version__ < Version("2.0.0"):  # 兼容旧版本的 pydantic
-                    obj = cls.parse_obj(yaml.safe_load(file))
-                else:
-                    obj = cls.model_validate(yaml.safe_load(file))
+            with config_path.open("r", encoding="utf-8") as file:
+                try:
+                    if __pydantic_version__ < Version("2.0.0"):  # 兼容旧版本的 pydantic
+                        obj = cls.parse_obj(yaml.safe_load(file))
+                    else:
+                        obj = cls.model_validate(yaml.safe_load(file))
+                except yaml.YAMLError as e:
+                    raise ConfigStructureError("配置文件格式错误") from e
         except Exception:
             if create_if_not_exists:
                 cls.dump_config_template()
@@ -83,7 +88,12 @@ class Config(BaseModel):
             config_path = _config_root / f"config.{env}.yaml"
             config_path.parent.mkdir(parents=True, exist_ok=True)
             config_path.write_text(
-                yaml.dump(cls.dump_modal(), allow_unicode=True, sort_keys=False),
+                yaml.dump(
+                    cls.dump_modal(),
+                    allow_unicode=True,
+                    sort_keys=False,
+                    default_flow_style=False,
+                ),
             )
         return cls.dump_modal()
 
@@ -98,17 +108,34 @@ class Config(BaseModel):
             config_path.parent.mkdir(parents=True, exist_ok=True)
             if config_path.exists():
                 # 如果配置文件存在，则只补充缺失的配置项
-                origin_config = yaml.safe_load(config_path.read_text())
+                try:
+                    origin_config = yaml.safe_load(
+                        config_path.read_text(encoding="utf-8"),
+                    )
+                except yaml.YAMLError as e:
+                    raise ConfigStructureError("配置文件格式错误") from e
                 for key, value in self.__dict__.items():
                     if key not in origin_config:
                         origin_config[key] = value
-                config_path.write_text(
-                    yaml.dump(origin_config, allow_unicode=True, sort_keys=False),
-                )
+                with config_path.open("w", encoding="utf-8") as f:
+                    yaml.dump(
+                        origin_config,
+                        f,
+                        default_flow_style=False,
+                        sort_keys=False,
+                        encoding="utf-8",
+                        allow_unicode=True,
+                    )
             else:
-                config_path.write_text(
-                    yaml.dump(self.model_dump(), allow_unicode=True, sort_keys=False),
-                )
+                with config_path.open("w", encoding="utf-8") as f:
+                    yaml.dump(
+                        self.model_dump(),
+                        f,
+                        default_flow_style=False,
+                        sort_keys=False,
+                        encoding="utf-8",
+                        allow_unicode=True,
+                    )
 
     def reload_config(self):
         """重新加载配置"""

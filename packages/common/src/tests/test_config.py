@@ -60,7 +60,7 @@ def test_config():
     assert config.b == "c"
 
     # 测试生成配置结构
-    print(config.gen_config_schema())
+    # print(config.gen_config_schema())
     assert config.gen_config_schema() == {
         "a": {"title": "A", "default": 1,"type": "integer"},
         "b": {"title": "B", "default": "b","type": "string"},
