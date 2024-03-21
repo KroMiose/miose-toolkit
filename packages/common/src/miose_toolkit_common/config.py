@@ -1,7 +1,7 @@
 import sys
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Type, TypeVar, Union, cast
 
 import yaml
 from pydantic import BaseModel
@@ -25,7 +25,7 @@ class Env(Enum):
 
 
 APP_ENV: str = Env.Default.value
-
+Self = TypeVar("Self", bound="Config")
 
 class Config(BaseModel):
     """配置基类"""
@@ -37,7 +37,7 @@ class Config(BaseModel):
         _config_root = Path(root)
 
     @classmethod
-    def load_config(cls, create_if_not_exists: bool = True):
+    def load_config(cls: Type[Self], create_if_not_exists: bool = True) -> Self:
         """加载配置
 
         :param create_if_not_exists: 如果配置文件不存在，是否创建
@@ -62,12 +62,8 @@ class Config(BaseModel):
                 cls.dump_config_template()
                 return cls.load_config(False)
             raise
-        try:
-            if __pydantic_version__ < Version("2.0.0"):
-                return cls.parse_obj(obj)
-            return cls.model_validate(obj)
-        except Exception as e:
-            raise Exception(f"配置文件格式错误: {e}") from e
+        else:
+            return cast(Self, obj)
 
     @classmethod
     def dump_modal(cls):
@@ -137,10 +133,11 @@ class Config(BaseModel):
                         allow_unicode=True,
                     )
 
-    def reload_config(self):
+    def reload_config(self: Self) -> Self:
         """重新加载配置"""
-        obj = self.load_config()
+        obj: Self = self.load_config()
         self.__dict__.update(obj.__dict__)
+        return obj
 
     def gen_config_schema(self):
         """生成配置结构
