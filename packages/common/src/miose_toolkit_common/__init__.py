@@ -13,10 +13,11 @@ from .list import (
     quick_value,
     split_and_drop_empty,
 )
-from .mxios import Mxios
+from .mxios import AioResponse, Mxios, Response
 from .retry import async_retry, retry
 from .url import (
     drop_url_anchor,
+    gen_proxy_url,
     get_url_domain,
     get_url_params,
     get_url_path,

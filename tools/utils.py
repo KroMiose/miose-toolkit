@@ -98,7 +98,7 @@ def clean_package_env(package: str):
 
 def test_package(package: str):
     """测试包"""
-    install_package(package)
+    # install_package(package)
 
     with enter_package(package):
         pkg_name, pkg_version = get_current_pkg()
@@ -119,7 +119,7 @@ def test_package(package: str):
 
 def build_package(package: str):
     """构建包"""
-    install_package(package)
+    # install_package(package)
 
     with enter_package(package):
         pkg_name, pkg_version = get_current_pkg()

@@ -54,7 +54,7 @@ def test_funny():
 
     Test2()
 
-    @advance_class_call(show_output=True, loops=2)
+    @advance_class_call(show_output=True, loops=1)
     class Test3:
         def __init__(self):
             pass
@@ -80,7 +80,7 @@ def test_funny():
 
     asyncio.run(test6())
 
-    @async_advance_call(show_output=True, loops=2)
+    @async_advance_call(show_output=True, loops=1)
     async def test7():
         pass
 

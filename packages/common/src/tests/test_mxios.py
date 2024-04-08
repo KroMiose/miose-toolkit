@@ -2,20 +2,20 @@ import asyncio
 from typing import TYPE_CHECKING
 
 try:
-    import ujson as json
+    import ujson as json  # type: ignore
 except ImportError:
     import json
 
 if TYPE_CHECKING:
-    from ..miose_toolkit_common import Mxios
+    from ..miose_toolkit_common import AioResponse, Mxios, Response
 else:
-    from src.miose_toolkit_common import Mxios
+    from src.miose_toolkit_common import AioResponse, Mxios, Response
 
 
 def test_mxios():
-    mxios = Mxios("https://httpbin.org")
+    mxios = Mxios(base_url="https://httpbin.org")
 
-    resp = mxios.request("get", "/get")
+    resp: Response = mxios.fetch("get", "/get")
     assert resp.status_code == 200
     assert resp.json()["url"] == "https://httpbin.org/get"
 
@@ -41,7 +41,7 @@ def test_mxios():
     async def async_test():
         mxios = Mxios("https://httpbin.org")
 
-        resp = await mxios.async_request("get", "/get")
+        resp: AioResponse = await mxios.async_fetch("get", "/get")
         assert resp.status_code == 200
         assert resp.json()["url"] == "https://httpbin.org/get"
 
