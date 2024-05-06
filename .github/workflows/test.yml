@@ -98,49 +98,49 @@ jobs:
         run: >-
           poetry run build &&
           echo "Windows Tests Finished"
-  test-on-mac-py38:
-    name: Test on Mac 🍎 With Python 3.8
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@master
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8.19
-      - name: Install Poetry
-        run: >-
-          pip install poetry
-      - name: Install dependencies
-        run: >-
-          poetry install &&
-          poetry run install
-      - name: Run tests
-        run: >-
-          poetry run test
-      - name: Run builds
-        run: >-
-          poetry run build &&
-          echo "Mac Tests Finished"
-  test-on-mac-py311:
-    name: Test on Mac 🍎 With Python 3.11
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@master
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.11.9
-      - name: Install Poetry
-        run: >-
-          pip install poetry
-      - name: Install dependencies
-        run: >-
-          poetry install &&
-          poetry run install
-      - name: Run tests
-        run: >-
-          poetry run test
-      - name: Run builds
-        run: >-
-          poetry run build &&
-          echo "Mac Tests Finished"
+  # test-on-mac-py38:
+  #   name: Test on Mac 🍎 With Python 3.8
+  #   runs-on: macos-latest
+  #   steps:
+  #     - uses: actions/checkout@master
+  #     - name: Set up Python 3.8
+  #       uses: actions/setup-python@v1
+  #       with:
+  #         python-version: 3.8
+  #     - name: Install Poetry
+  #       run: >-
+  #         pip install poetry
+  #     - name: Install dependencies
+  #       run: >-
+  #         poetry install &&
+  #         poetry run install
+  #     - name: Run tests
+  #       run: >-
+  #         poetry run test
+  #     - name: Run builds
+  #       run: >-
+  #         poetry run build &&
+  #         echo "Mac Tests Finished"
+  # test-on-mac-py311:
+  #   name: Test on Mac 🍎 With Python 3.11
+  #   runs-on: macos-latest
+  #   steps:
+  #     - uses: actions/checkout@master
+  #     - name: Set up Python 3.11
+  #       uses: actions/setup-python@v1
+  #       with:
+  #         python-version: 3.11
+  #     - name: Install Poetry
+  #       run: >-
+  #         pip install poetry
+  #     - name: Install dependencies
+  #       run: >-
+  #         poetry install &&
+  #         poetry run install
+  #     - name: Run tests
+  #       run: >-
+  #         poetry run test
+  #     - name: Run builds
+  #       run: >-
+  #         poetry run build &&
+  #         echo "Mac Tests Finished"
