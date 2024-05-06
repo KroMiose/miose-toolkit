@@ -1,5 +1,4 @@
 from typing import Dict, Optional, Tuple, cast
-from urllib.parse import urlparse
 
 import aiohttp
 import requests
@@ -89,48 +88,30 @@ async def async_fetch(
     ssl_verify: bool = True,
     allow_redirects: bool = True,
 ) -> Tuple[int, str, aiohttp.ClientResponse]:
-    """发起异步请求
-
-    Args:
-        url (str): 请求地址
-        method (str, optional): 请求方法. Defaults to "get".
-        params (Optional[Dict], optional): 请求参数. Defaults to None.
-        data (str, optional): 请求数据. Defaults to "".
-        headers (Optional[Dict], optional): 请求头. Defaults to None.
-        cookies (Optional[Dict], optional): 请求cookies. Defaults to None.
-        proxy_server (str, optional): 代理服务器. Defaults to "".
-        timeout (int, optional): 请求超时时间. Defaults to 60.
-        ssl (bool, optional): 是否验证ssl. Defaults to True.
-        allow_redirects (bool, optional): 是否允许重定向. Defaults to True.
-    Returns:
-        Tuple[int, str, aiohttp.ClientResponse]: [description]
-        status_code: 状态码
-        text: 响应文本
-        raw_resp: 原始响应对象
-    """
-
     if headers is None:
         headers = {}
+    if cookies:
+        headers["Cookie"] = stringfy_cookies(cookies)
     if params is None:
         params = {}
 
-    async with aiohttp.ClientSession(headers=headers) as session:
-        if proxy_server:
-            conn = aiohttp.TCPConnector(
-                verify_ssl=ssl_verify,
-            )
-            session = aiohttp.ClientSession(connector=conn, timeout=timeout)
-            if cookies:
-                session._default_headers.update(  # noqa: SLF001
-                    {"Cookie": stringfy_cookies(cookies)},
-                )
-        async with getattr(session, method.lower())(
-            url,
-            params=params,
-            data=data,
-            timeout=timeout,
-            allow_redirects=allow_redirects,
-            proxy=proxy_server,
-        ) as resp:
-            resp: aiohttp.ClientResponse = cast(aiohttp.ClientResponse, resp)
-            return resp.status, await resp.text(), resp
+    # 使用 TCPConnector 来处理代理和SSL验证
+    conn = aiohttp.TCPConnector(
+        verify_ssl=ssl_verify,
+    )
+
+    # 创建 ClientSession 实例时指定 connector 和 headers
+    async with aiohttp.ClientSession(
+        connector=conn if proxy_server else None,
+        headers=headers,
+        timeout=aiohttp.ClientTimeout(total=timeout),
+    ) as session, getattr(session, method.lower())(
+        url,
+        params=params,
+        data=data,
+        allow_redirects=allow_redirects,
+        proxy=proxy_server if proxy_server else None,
+        ssl=ssl_verify,
+    ) as resp:
+        resp = cast(aiohttp.ClientResponse, resp)
+        return resp.status, await resp.text(), resp
