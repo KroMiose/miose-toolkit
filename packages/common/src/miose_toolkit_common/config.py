@@ -90,6 +90,7 @@ class Config(BaseModel):
                     sort_keys=False,
                     default_flow_style=False,
                 ),
+                encoding="utf-8",
             )
         return cls.dump_modal()
 
