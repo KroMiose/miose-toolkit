@@ -106,7 +106,7 @@ jobs:
       - name: Set up Python 3.8
         uses: actions/setup-python@v1
         with:
-          python-version: 3.8
+          python-version: 3.8.19
       - name: Install Poetry
         run: >-
           pip install poetry
@@ -129,7 +129,7 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v1
         with:
-          python-version: 3.11
+          python-version: 3.11.9
       - name: Install Poetry
         run: >-
           pip install poetry
