@@ -7,7 +7,7 @@ packages = [{ include = "miose_toolkit_common", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">=3.8, <3.12"
-aiohttp = "^3.9.2"
+aiohttp = "^3.9.4"
 requests = "^2.31.0"
 poetry = "^1.6.1"
 pyyaml = "^6.0.1"

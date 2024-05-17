@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Tuple
 
 import requests
+import toml
 
 # PROXY = "http://127.0.0.1:7890"
 PROXY = None
@@ -68,11 +69,28 @@ def install_package(package: str):
     with enter_package(package):
         pkg_name, pkg_version = get_current_pkg()
         print(f"Installing package {package}...")
+
+        # 获取所有 extras
+        pyproject_path = Path("pyproject.toml")
+        if pyproject_path.exists():
+            pyproject_content = toml.load(pyproject_path)
+            extras = (
+                pyproject_content.get("tool", {}).get("poetry", {}).get("extras", {})
+            )
+            all_extras = list(extras.keys())
+        else:
+            all_extras = []
+
         if Path("poetry.lock").exists():
             # 更新 poetry.lock
             os.system("poetry lock --no-update")
+
         # 安装依赖
-        os.system("poetry install")
+        if all_extras:
+            extras_str = "all" if "all" in all_extras else ",".join(all_extras)
+            os.system(f"poetry install -E {extras_str}")
+        else:
+            os.system("poetry install")
 
     print(f"Package {pkg_name} install success!\n")
 
