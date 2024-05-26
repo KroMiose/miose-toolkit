@@ -1,10 +1,11 @@
+import asyncio
 import os
 import re
 from importlib import import_module
 from pathlib import Path
 
 
-def main():
+async def _main():
     # 获取当前目录
     current_path = Path(__file__).parent
     # 获取当前目录下的所有文件
@@ -26,4 +27,16 @@ def main():
         for attr in dir(mod):
             if attr.startswith("test_"):
                 # 执行测试方法
-                getattr(mod, attr)()
+                method = getattr(mod, attr)
+                if asyncio.iscoroutinefunction(method):
+                    await method()
+                else:
+                    method()
+
+
+def main():
+    asyncio.get_event_loop().run_until_complete(_main())
+
+
+if __name__ == "__main__":
+    main()
