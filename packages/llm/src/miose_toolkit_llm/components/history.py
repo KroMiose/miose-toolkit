@@ -22,8 +22,9 @@ class VecHistoryComponent(BaseComponent):
         self._vector_db = use()
         return super().setup()
 
-    def render(self) -> str:
-        raise NotImplementedError
+    async def render(self) -> str:
+        """渲染组件"""
+        return f"TestRender: VecHistoryComponent(use_collection_name='{self.params.use_collection_name}')"
 
     def bind_collection_name(
         self,

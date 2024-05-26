@@ -22,8 +22,9 @@ class VecFunctionComponent(BaseComponent):
         self._vector_db = use()
         return super().setup()
 
-    def render(self) -> str:
-        raise NotImplementedError
+    async def render(self) -> str:
+        """渲染组件"""
+        return f"TestRender: VecFunctionComponent(use_collection_name='{self.params.use_collection_name}')"
 
     def register(self, name: str):
 

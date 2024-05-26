@@ -2,10 +2,8 @@ import json
 import re
 from typing import Any, Dict, Type, TypeVar, Union
 
-from packages.llm.src.miose_toolkit_llm.scene import ModelResponse
-
 from ..exceptions import ComponentRuntimeError
-from ..scene import BaseScene
+from ..scene import BaseScene, ModelResponse
 from .base import BaseComponent
 
 JsonResolverComponentType = TypeVar(
@@ -21,27 +19,36 @@ class JsonResolverComponent(BaseComponent):
         return self
 
     @classmethod
-    def render(cls, indent: int = 4) -> str:
+    async def render(cls, indent: int = 4) -> str:
         return json.dumps(cls.to_dict(), ensure_ascii=False, indent=indent)
 
     @classmethod
-    def example(cls, indent: int = 4) -> str:
+    async def example(cls, indent: int = 4) -> str:
         """生成响应格式示例 Prompt"""
-        return "```json\n{}\n```".format(cls.render(indent))
+        ret: str = f"```json\n{await cls.render(indent)}\n```"
+        return ret
 
     @classmethod
     def to_dict(cls) -> Dict:
         """将组件类的字段转化为字典格式"""
         ret = {}
         for attr in dir(cls):
-            if not attr.startswith("_"):
+            if (
+                not attr.startswith("p_")
+                and not attr.startswith("_")
+                and not callable(getattr(cls, attr))
+                and (attr not in ["scene", "Params", "params"])
+            ):
                 attr_value = getattr(cls, attr)
-                if isinstance(attr_value, BaseComponent) and hasattr(
+                if isinstance(attr_value, JsonResolverComponent) and hasattr(
                     attr_value,
                     "to_dict",
                 ):
                     ret[attr] = attr_value.to_dict()  # type: ignore
-                else:
+                elif (  # 基本类型
+                    isinstance(attr_value, (str, int, float, bool))
+                    or attr_value is None
+                ):
                     ret[attr] = attr_value
         return ret
 

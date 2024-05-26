@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Literal, Optional, Tuple
 
+from ..components import BaseComponent
 from ..exceptions import ArgumentTypeError, RenderPromptError
 from .base import BasePromptCreator
 
@@ -11,12 +12,21 @@ class _Message:
         self.message_segments: Tuple[Any] = args
         self.sep: str = sep
 
-    @property
-    def message_text(self) -> str:
-        return self.sep.join([str(m) for m in self.message_segments])
+    async def resolve(self) -> str:
+        ret: List[str] = []
+        for m in self.message_segments:
+            if isinstance(m, BaseComponent):
+                ret.append(await m.render())
+            elif isinstance(m, str):
+                ret.append(m)
+            elif isinstance(m, _Message):
+                ret.append(await m.resolve())
+            else:
+                raise ArgumentTypeError("Invalid message type")
+        return self.sep.join(ret)
 
-    def to_dict(self) -> Dict[str, str]:
-        return {"role": self.role, "message": self.message_text}
+    async def to_dict(self) -> Dict[str, str]:
+        return {"role": self.role, "content": await self.resolve()}
 
 
 class SystemMessage(_Message):
@@ -65,8 +75,20 @@ class OpenAIPromptCreator(BasePromptCreator):
         self.stop_words = stop_words
 
     # Override
-    def render(self) -> List[Dict[str, str]]:
-        try:
-            return [m.to_dict() for m in self.messages]
-        except Exception as e:
-            raise RenderPromptError(f"Error rendering prompt: {e}") from e
+    async def render(self) -> List[Dict[str, str]]:
+        return [await m.to_dict() for m in self.messages]
+        # try:
+        #     return [await m.to_dict() for m in self.messages]
+        # except Exception as e:
+        #     raise RenderPromptError(f"Error rendering prompt: {e}") from e
+
+    @classmethod
+    def transform_prompt(cls, message_dicts: List[Dict[str, str]]):
+
+        prompt = ""
+        for message_dict in message_dicts:
+            role = message_dict["role"]
+            content = message_dict["content"]
+            prompt += f"<|{role}|>:\n{content}\n\n"
+
+        return prompt

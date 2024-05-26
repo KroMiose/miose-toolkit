@@ -32,12 +32,17 @@ else:
     )
 
 
-def update_openai_proxy(proxy: Optional[str]) -> None:
+def set_openai_proxy(proxy: Optional[str]) -> None:
     global _OPENAI_PROXY
-    _OPENAI_PROXY = proxy
+    if proxy:
+        if not proxy.startswith("http"):
+            proxy = f"http://{proxy}"
+        _OPENAI_PROXY = proxy
+    else:
+        _OPENAI_PROXY = None
 
 
-def update_openai_base_url(base_url: str) -> None:
+def set_openai_base_url(base_url: str) -> None:
     global _OPENAI_BASE_URL
     _OPENAI_BASE_URL = base_url
 
@@ -47,7 +52,7 @@ def update_openai_base_url(base_url: str) -> None:
         openai.base_url = _OPENAI_BASE_URL  # type: ignore
 
 
-update_openai_base_url(_OPENAI_BASE_URL)
+set_openai_base_url(_OPENAI_BASE_URL)
 
 
 async def gen_openai_chat_response(
@@ -137,6 +142,8 @@ class OpenAIChatClient(BaseClient):
         stop_words: Optional[List[str]] = None,
         max_tokens: Optional[int] = None,
         api_key: Optional[str] = None,
+        base_url: Optional[str] = None,
+        proxy: Optional[str] = None,
     ):
         self.model = model
         self.temperature = temperature
@@ -146,13 +153,17 @@ class OpenAIChatClient(BaseClient):
         self.stop_words = stop_words
         self.max_tokens = max_tokens
         self.api_key = api_key
+        if base_url is not None:
+            set_openai_base_url(base_url)
+        if proxy is not None:
+            set_openai_proxy(proxy)
 
     async def call(self, creator: OpenAIPromptCreator):
         """调用聊天 API"""
 
         cr = ClientResponse(prompt_creator=creator)
 
-        messages = creator.render()
+        messages = await creator.render()
 
         output_str, token_consumption = await gen_openai_chat_response(
             model=self.model,
@@ -176,9 +187,10 @@ class OpenAIChatClient(BaseClient):
             ),
             max_tokens=(
                 self.max_tokens if creator.max_tokens is None else creator.max_tokens
-            ),
+            ), 
+            api_key=self.api_key,
         )
 
         cr.update_token_info(total_tokens=token_consumption)
-        cr.finish(output_str)
+        cr.finish(prompt_text=creator.transform_prompt(messages), response_text=output_str)
         return cr

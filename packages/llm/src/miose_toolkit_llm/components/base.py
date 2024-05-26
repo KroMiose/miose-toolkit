@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Tuple, Type, TypeVar, overload
+from typing import Any, Dict, Optional, Tuple, Type, TypedDict, TypeVar, overload
 
 from ..exceptions import NoSuchParameterError, StoreNotSetError
 from ..scene import BaseScene, ModelResponse
 from ..store import BaseStore
 
-BaseComponentParamsType = TypeVar(
-    "BaseComponentParamsType",
+_BaseComponentParamsType = TypeVar(
+    "_BaseComponentParamsType",
     bound="BaseComponentParams",
 )
 
@@ -19,12 +19,15 @@ class BaseComponentParams:
         Tuple[str, BaseStore],
     ]  # 组件参数的映射，key 为参数名，value 为参数的来源 store 及 store 上的键
 
+    def __init__(self):
+        self._param_map = {}
+
     def bind(
-        self: BaseComponentParamsType,
+        self: _BaseComponentParamsType,
         param_key: str,
         store_key: str,
         src_store: BaseStore,
-    ) -> BaseComponentParamsType:
+    ) -> _BaseComponentParamsType:
         """把组件参数绑定到 store 上的键
 
         Args:
@@ -40,10 +43,6 @@ class BaseComponentParams:
         """
         if not hasattr(src_store, store_key):
             raise NoSuchParameterError(f"store `{src_store}` has no key `{store_key}`")
-        if not hasattr(self, param_key):
-            raise NoSuchParameterError(
-                f"component `{self}` has no parameter `{param_key}`",
-            )
         self._param_map[param_key] = (store_key, src_store)
         return self
 
@@ -55,6 +54,8 @@ class BaseComponentParams:
         Args:
             name (str): 组件参数的键
         """
+        if name in ["_param_map", "_scene", "_params"]:
+            return super().__getattribute__(name)
         if name in self._param_map:
             store_key, src_store = self._param_map[name]
             return src_store.get(store_key)
@@ -69,14 +70,16 @@ class BaseComponentParams:
             name (str): 组件参数的键
             value (Any): 组件参数的值
         """
-        if name in self._param_map:
+        if name in ["_param_map", "_scene", "_params"]:
+            super().__setattr__(name, value)
+        elif name in self._param_map:
             store_key, src_store = self._param_map[name]
             src_store.set(store_key, value)
         else:
             super().__setattr__(name, value)
 
 
-BaseComponentType = TypeVar("BaseComponentType", bound="BaseComponent")
+_BaseComponentType = TypeVar("_BaseComponentType", bound="BaseComponent")
 
 
 class BaseComponent(ABC):
@@ -102,11 +105,11 @@ class BaseComponent(ABC):
         return self._params
 
     def bind(
-        self: BaseComponentType,
+        self: _BaseComponentType,
         param_key: str,
         store_key: str,
         src_store: Optional[BaseStore] = None,
-    ) -> BaseComponentType:
+    ) -> _BaseComponentType:
         """把组件的参数引用绑定到 store 上的键
 
         Args:
@@ -144,20 +147,20 @@ class BaseComponent(ABC):
             self.bind(param_key, store_key, _store)
         return self
 
-    def setup(self: BaseComponentType) -> BaseComponentType:  # noqa: ARG002
+    def setup(self: _BaseComponentType) -> _BaseComponentType:  # noqa: ARG002
         """组件初始化"""
         return self
 
     @abstractmethod
-    def render(self) -> str:
+    async def render(self) -> str:
         """渲染组件"""
 
     @classmethod
     def resolve(
-        cls: Type[BaseComponentType],
+        cls: Type[_BaseComponentType],
         model_response: ModelResponse,
         use_data: Any = None,
-    ) -> BaseComponentType:
+    ) -> _BaseComponentType:
         """从 ModelResponse 创建组件实例"""
         cmp = cls(model_response.scene)
         cmp.setup()
@@ -167,17 +170,12 @@ class BaseComponent(ABC):
             return cmp.resolve_from_data(data=use_data)
 
     def resolve_from_text(
-        self: BaseComponentType, response_text: str,
-    ) -> BaseComponentType:
+        self: _BaseComponentType,
+        response_text: str,
+    ) -> _BaseComponentType:
         """从响应文本创建组件实例 (子类按需实现)"""
         raise NotImplementedError
 
-    def resolve_from_data(self: BaseComponentType, data: Any) -> BaseComponentType:
+    def resolve_from_data(self: _BaseComponentType, data: Any) -> _BaseComponentType:
         """自定义从任意数据创建组件实例的逻辑 (子类按需实现)"""
         raise NotImplementedError
-
-    def __str__(self) -> str:
-        return self.render()
-
-    def __repr__(self) -> str:
-        return self.render()

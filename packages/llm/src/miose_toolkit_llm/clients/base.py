@@ -38,9 +38,10 @@ class ClientResponse:
         self.completion_tokens = completion_tokens
         self.total_tokens = total_tokens
 
-    def finish(self, response_text: str):
+    def finish(self, prompt_text: str, response_text: str):
         if self._is_finished:
             raise ClientError("Client response has already been finished.")
+        self.prompt_text = prompt_text
         self.response_text = response_text
         self.finish_time = time.time()
         self.duration = self.finish_time - self.start_time
@@ -64,11 +65,11 @@ class BaseClient(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def call(self, prompt_creator: BasePromptCreator) -> ClientResponse:
+    async def call(self, creator: BasePromptCreator) -> ClientResponse:
         """调用 LLM 客户端获取响应
 
         Args:
-            prompt_creator (BasePromptCreator): 用于生成请求的 PromptCreator 对象
+            creator (BasePromptCreator): 用于生成请求的 PromptCreator 对象
 
         Returns:
             Tuple[str, str]: 提示词文本, 响应文本

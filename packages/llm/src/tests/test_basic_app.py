@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, List
+import os
+from typing import TYPE_CHECKING, ClassVar, List
 
 if TYPE_CHECKING:
     from ..miose_toolkit_llm import (
@@ -33,7 +34,7 @@ else:
     from src.miose_toolkit_llm import (
         BaseScene,
         BaseStore,
-        Result,
+        ModelResponse,
         Runner,
     )
     from src.miose_toolkit_llm.clients.chat_openai import OpenAIChatClient
@@ -60,7 +61,7 @@ else:
     from src.miose_toolkit_llm.tools.vector_dbs import ChomaVecDb
 
 
-async def main():
+async def test_main():
 
     # 1. 构造一个应用场景
     class Scene(BaseScene):
@@ -69,9 +70,9 @@ async def main():
         class Store(BaseStore):
             """场景数据源类"""
 
-            history_key = "history"
-            functions_key = "game_functions"
-            character = "艾丽娅"
+            history_key: str = "history"
+            functions_key: str = "game_functions"
+            character: str = "艾丽娅"
 
     scene = Scene()
     store = scene.store  # 可获取场景数据源
@@ -105,20 +106,16 @@ async def main():
     class ActionResponse(JsonResolverComponent):
         """自定义动作响应器"""
 
-        reaction: str
-        options: List[str]
-
-        # 根据需要覆写 example 方法来生成解析结果示例，未覆写则直接使用默认值
-        def example(self) -> str:
-            return '{"reaction": "你好，欢迎来到魔法世界！你的第一个动作是什么？", "options": ["打开魔法书", "查看地图", "查看物品"]}'
+        reaction: str = "你好，欢迎来到魔法世界！你的第一个动作是什么？"
+        options: ClassVar[List[str]] = ["打开魔法书", "查看地图", "查看物品"]
 
     class CustomResponseResolver(JsonResolverComponent):
         """自定义结果解析器"""
 
-        action_response: ActionResponse
-        function_response: VecFunctionComponent
+        action_response: ActionResponse = ActionResponse(scene=scene)
+        function_response: VecFunctionComponent = vec_functions
 
-    # custom_component = CustomComponent()  # 自定义组件 (需要继承 BaseComponent，实现 render_prompt 方法)
+    # custom_component = CustomComponent()  # 自定义组件 (需要继承 BaseComponent，实现 render 方法)
 
     # 3. 构造 OpenAI 提示词
     prompt_creator = OpenAIPromptCreator(
@@ -129,7 +126,7 @@ async def main():
                 collection_name="functions_key",
             ),  # 可传递参数给组件，来指定渲染 prompt 逻辑
             "你的响应结果应该符合以下格式：",
-            CustomResponseResolver.example(),  # 解析结果示例
+            await CustomResponseResolver.example(),  # 解析结果示例
             sep="\n\n",  # 自定义构建 prompt 的分隔符 默认为 "\n"
         ),
         UserMessage(
@@ -151,7 +148,11 @@ async def main():
 
     scene.attach_runner(  # 为场景绑定 LLM 执行器
         Runner(
-            client=OpenAIChatClient(model="gpt-3.5-turbo"),  # 指定聊天客户端
+            client=OpenAIChatClient(
+                model="gpt-3.5-turbo",
+                api_key=os.environ.get("OPENAI_API_KEY"),
+                base_url=os.environ.get("OPENAI_API_URL"),
+            ),  # 指定聊天客户端
             tokenizer=TikTokenizer(model="gpt-3.5-turbo"),  # 指定分词器
             prompt_creator=prompt_creator,
         ),
@@ -178,6 +179,8 @@ async def main():
         function_response.execute()  # 执行方法调用结果
     except ComponentRuntimeError as e:
         print(e)
+    except Exception as e:
+        print(e)
 
     _ = (
         resolved_response.action_response.reaction
@@ -185,7 +188,7 @@ async def main():
 
     # 5. 反馈与保存数据 (可选)
     mr.save(
-        prompt_file="chat_prompt.txt",
-        response_file="chat_response.json",
+        prompt_file="temp/chat_prompt.txt",
+        response_file="temp/chat_response.json",
     )  # 保存响应提示词和结果到文件 (可选)
     mr.feedback(rate=5)  # 反馈生成质量到数据平台 (可选)

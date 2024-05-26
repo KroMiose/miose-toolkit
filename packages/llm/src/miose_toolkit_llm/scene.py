@@ -58,7 +58,6 @@ class ModelResponse:
 
     def feedback(self, rate: float, message: Optional[str] = None):
         """反馈结果"""
-        raise NotImplementedError
 
 
 class Runner:
@@ -106,6 +105,6 @@ class BaseScene(ABC):
     ) -> ModelResponse:
         _runner = use_runner or self.runners[0]
         cr: ClientResponse = await _runner.client.call(
-            prompt_creator=_runner.prompt_creator,
+            creator=_runner.prompt_creator,
         )
         return ModelResponse(client_response=cr, scene=self)
