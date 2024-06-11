@@ -1,26 +1,36 @@
 [tool.poetry]
 name = "miose-toolkit"
-version = "0.0.21"
+version = "0.0.23"
 description = ""
 authors = ["KroMiose <li_xiangff@163.com>"]
 readme = "README.md"
-packages = [{ include = "tools" }]
+packages = [{ include = "scripts" }]
 
 [tool.poetry.dependencies]
 python = ">=3.8, <3.12"
-miose-toolkit-common = { path = "packages/common/" }
-miose-toolkit-logger = { path = "packages/logger/" }
-miose-toolkit-db = { path = "packages/db/" }
+toml = "^0.10.2"
+miose-toolkit-common = { path = "packages/common/", develop = true }
+miose-toolkit-logger = { path = "packages/logger/", develop = true }
+miose-toolkit-db = { path = "packages/db/", develop = true }
+miose-toolkit-llm = { path = "packages/llm/", extras = ["all"], develop = true  }
 
 [tool.poetry.scripts]
-install = "tools.run_install:main"
-clean = "tools.run_clean:main"
-test = "tools.run_test:main"
-build = "tools.run_build:main"
-publish = "tools.run_publish:main"
+install = "scripts.run_install:main"
+clean = "scripts.run_clean:main"
+build = "scripts.run_build:main"
+publish = "scripts.run_publish:main"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"
+pytest-cov = "^5.0.0"
+pytest-html = "^4.1.1"
+pytest-asyncio = "^0.23.7"
+
+[tool.pytest.ini_options]
+pytest_plugins = ["cov"]
+addopts = "--cov=src --cov-report=html:.pytest/coverage_report --cov-report=term-missing -v --html=.pytest/report.html"
+testpaths = ["tests"]
+pythonpath = ["."]
 
 [build-system]
 requires = ["poetry-core"]
@@ -35,6 +45,7 @@ ignore = [
   "F403",
   "B008",
   "B905",
+  "PYI019",
   "TID252",
   "TRY002",
   "TRY003",
