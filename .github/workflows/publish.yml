@@ -29,7 +29,7 @@ jobs:
           poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
       - name: Code Test
         run: >-
-          poetry run test
+          poetry run pytest
       - name: Build Package
         run: >-
           poetry run build

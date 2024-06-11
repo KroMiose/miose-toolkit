@@ -24,7 +24,7 @@ jobs:
           poetry run install
       - name: Run tests
         run: >-
-          poetry run test
+          poetry run pytest
       - name: Run builds
         run: >-
           poetry run build &&
@@ -47,7 +47,7 @@ jobs:
           poetry run install
       - name: Run tests
         run: >-
-          poetry run test
+          poetry run pytest
       - name: Run builds
         run: >-
           poetry run build &&
@@ -70,7 +70,7 @@ jobs:
           poetry run install
       - name: Run tests
         run: >-
-          poetry run test
+          poetry run pytest
       - name: Run builds
         run: >-
           poetry run build &&
@@ -93,7 +93,7 @@ jobs:
           poetry run install
       - name: Run tests
         run: >-
-          poetry run test
+          poetry run pytest
       - name: Run builds
         run: >-
           poetry run build &&
@@ -116,7 +116,7 @@ jobs:
   #         poetry run install
   #     - name: Run tests
   #       run: >-
-  #         poetry run test
+  #         poetry run pytest
   #     - name: Run builds
   #       run: >-
   #         poetry run build &&
@@ -139,7 +139,7 @@ jobs:
   #         poetry run install
   #     - name: Run tests
   #       run: >-
-  #         poetry run test
+  #         poetry run pytest
   #     - name: Run builds
   #       run: >-
   #         poetry run build &&
