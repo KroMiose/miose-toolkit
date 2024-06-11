@@ -20,6 +20,7 @@ class ClientResponse:
     finish_time: float
     duration: float
     _is_finished: bool = False
+    _test_output: Optional[str] = None
 
     def __init__(
         self,
@@ -47,6 +48,13 @@ class ClientResponse:
         self.duration = self.finish_time - self.start_time
         self._is_finished = True
 
+    def attach_test_output(self, test_output: str):
+        self._test_output = test_output
+
+    @property
+    def test_output(self) -> Optional[str]:
+        return self._test_output
+
 
 class BaseClient(ABC):
     """LLM 客户端基类"""
@@ -65,7 +73,9 @@ class BaseClient(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def call(self, creator: BasePromptCreator) -> ClientResponse:
+    async def call(
+        self, creator: BasePromptCreator, cr: ClientResponse
+    ) -> ClientResponse:
         """调用 LLM 客户端获取响应
 
         Args:

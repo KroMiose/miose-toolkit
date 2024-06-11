@@ -1,43 +1,12 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "debug common",
+      "name": "Debug: Current File",
       "type": "debugpy",
       "request": "launch",
-      "cwd": "${workspaceFolder}/packages/common",
-      "module": "src.tests.__init__",
-      "args": [],
-      "justMyCode": false
-    },
-    {
-      "name": "debug db",
-      "type": "debugpy",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/packages/db",
-      "module": "src.tests.__init__",
-      "args": [],
-      "justMyCode": false
-    },
-    {
-      "name": "debug logger",
-      "type": "debugpy",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/packages/logger",
-      "module": "src.tests.__init__",
-      "args": [],
-      "justMyCode": false
-    },
-    {
-      "name": "debug llm",
-      "type": "debugpy",
-      "request": "launch",
-      "cwd": "${workspaceFolder}/packages/llm",
-      "module": "src.tests.__init__",
-      "args": [],
+      "program": "${file}",
+      "console": "integratedTerminal",
       "justMyCode": false
     }
   ]

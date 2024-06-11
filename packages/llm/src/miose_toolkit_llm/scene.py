@@ -102,9 +102,14 @@ class BaseScene(ABC):
     async def run(
         self: "BaseScene",
         use_runner: Optional[Runner] = None,
+        _use_test_output: str = "",
     ) -> ModelResponse:
         _runner = use_runner or self.runners[0]
+        cr = ClientResponse(prompt_creator=_runner.prompt_creator)
+        if _use_test_output:
+            cr.attach_test_output(_use_test_output)
         cr: ClientResponse = await _runner.client.call(
             creator=_runner.prompt_creator,
+            cr=cr,
         )
         return ModelResponse(client_response=cr, scene=self)

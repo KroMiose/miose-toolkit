@@ -2,7 +2,7 @@ from typing import Optional, Type
 
 from ..store import BaseStore
 from ..tools.vector_dbs import BaseVectorDB
-from .base import BaseComponent, BaseComponentParams
+from .base import BaseComponent
 
 
 class VecHistoryComponent(BaseComponent):
@@ -13,7 +13,7 @@ class VecHistoryComponent(BaseComponent):
         - use_collection_name: 向量数据库使用的集合名称
     """
 
-    class Params(BaseComponentParams):
+    class Params(BaseComponent.Params):
         use_collection_name: str
 
     _vector_db: BaseVectorDB

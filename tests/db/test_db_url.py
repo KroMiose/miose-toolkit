@@ -1,17 +1,8 @@
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..miose_toolkit_db import (
-        gen_mysql_db_url,
-        gen_postgresql_db_url,
-        gen_sqlite_db_url,
-    )
-else:
-    from miose_toolkit_db import (
-        gen_mysql_db_url,
-        gen_postgresql_db_url,
-        gen_sqlite_db_url,
-    )
+from miose_toolkit_db import (
+    gen_mysql_db_url,
+    gen_postgresql_db_url,
+    gen_sqlite_db_url,
+)
 
 
 def test_db_url_generator():

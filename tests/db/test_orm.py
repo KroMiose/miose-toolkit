@@ -1,18 +1,10 @@
 from pathlib import Path
-from typing import TYPE_CHECKING
 
+from miose_toolkit_db import (
+    MioOrm,
+    gen_sqlite_db_url,
+)
 from sqlalchemy import Column, String
-
-if TYPE_CHECKING:
-    from ..miose_toolkit_db import (
-        MioOrm,
-        gen_sqlite_db_url,
-    )
-else:
-    from miose_toolkit_db import (
-        MioOrm,
-        gen_sqlite_db_url,
-    )
 
 
 def test_orm():

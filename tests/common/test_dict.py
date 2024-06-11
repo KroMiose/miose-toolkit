@@ -1,9 +1,4 @@
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..miose_toolkit_common import merge_dicts
-else:
-    from src.miose_toolkit_common import merge_dicts
+from miose_toolkit_common import merge_dicts
 
 
 def test_dict():

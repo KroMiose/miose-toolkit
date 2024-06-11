@@ -1,19 +1,15 @@
 import contextlib
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import yaml
 
 try:
-    import ujson as json
+    import ujson as json  # type: ignore
 except ImportError:
     import json
 
-if TYPE_CHECKING:
-    from ..miose_toolkit_common import APP_ENV, Config, Env
-else:
-    from src.miose_toolkit_common import APP_ENV, Config, Env
+from miose_toolkit_common import APP_ENV, Config, Env
 
 
 def test_config():
@@ -62,8 +58,8 @@ def test_config():
     # 测试生成配置结构
     # print(config.gen_config_schema())
     assert config.gen_config_schema() == {
-        "a": {"title": "A", "default": 1,"type": "integer"},
-        "b": {"title": "B", "default": "b","type": "string"},
+        "a": {"title": "A", "default": 1, "type": "integer"},
+        "b": {"title": "B", "default": "b", "type": "string"},
     }
 
     # 删除测试用的临时文件

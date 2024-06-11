@@ -1,3 +1,4 @@
+import os
 from typing import Dict, List
 
 from .exceptions import InvalidCredentialException, RunOutOfCredentialException
@@ -46,3 +47,6 @@ def iter_credential(credentials: List[str], iter_key: str = "openai"):
 
     return _iterator_decorator
 
+
+def in_test():
+    return os.getenv("IN_TEST_MODE", "false").lower() == "true"

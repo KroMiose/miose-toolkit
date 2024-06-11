@@ -147,12 +147,12 @@ class BaseComponent(ABC):
             self.bind(param_key, store_key, _store)
         return self
 
-    def setup(self: _BaseComponentType) -> _BaseComponentType:  # noqa: ARG002
+    def setup(self: _BaseComponentType, *args, **kwargs) -> _BaseComponentType:  # noqa: ARG002
         """组件初始化"""
         return self
 
     @abstractmethod
-    async def render(self) -> str:
+    async def render(self, *args, **kwargs) -> str:
         """渲染组件"""
 
     @classmethod

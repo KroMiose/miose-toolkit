@@ -1,9 +1,4 @@
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..miose_toolkit_common import CmdOpt, CommandMaster
-else:
-    from src.miose_toolkit_common import CmdOpt, CommandMaster
+from miose_toolkit_common import CmdOpt, CommandMaster
 
 
 def test_command():
@@ -103,3 +98,7 @@ def test_command():
     # print()
     # print("commands full description:")
     # print(cm.gen_desc())
+
+
+if __name__ == "__main__":
+    test_command()

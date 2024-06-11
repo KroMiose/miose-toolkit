@@ -1,21 +1,10 @@
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..miose_toolkit_common import (
-        drop_url_anchor,
-        get_url_domain,
-        get_url_params,
-        get_url_path,
-        is_relative_url,
-    )
-else:
-    from src.miose_toolkit_common import (
-        drop_url_anchor,
-        get_url_domain,
-        get_url_params,
-        get_url_path,
-        is_relative_url,
-    )
+from miose_toolkit_common import (
+    drop_url_anchor,
+    get_url_domain,
+    get_url_params,
+    get_url_path,
+    is_relative_url,
+)
 
 
 def test_url():
@@ -50,7 +39,8 @@ def test_url():
     }
 
     assert get_url_params(
-        "http://example.com?quote=%E4%B8%AD%E6%96%87", False,
+        "http://example.com?quote=%E4%B8%AD%E6%96%87",
+        False,
     ) == {
         "quote": "%E4%B8%AD%E6%96%87",
     }
@@ -71,16 +61,12 @@ def test_url():
     assert drop_url_anchor("http://example.com") == "http://example.com"
     assert drop_url_anchor("http://example.com/") == "http://example.com/"
     assert drop_url_anchor("http://example.com/path") == "http://example.com/path"
-    assert (
-        drop_url_anchor("http://example.com/path/") == "http://example.com/path/"
-    )
+    assert drop_url_anchor("http://example.com/path/") == "http://example.com/path/"
 
     assert drop_url_anchor("http://example.com#") == "http://example.com"
     assert drop_url_anchor("http://example.com/#") == "http://example.com/"
     assert drop_url_anchor("http://example.com/path#") == "http://example.com/path"
-    assert (
-        drop_url_anchor("http://example.com/path/#") == "http://example.com/path/"
-    )
+    assert drop_url_anchor("http://example.com/path/#") == "http://example.com/path/"
 
     assert drop_url_anchor("http://example.com#anchor") == "http://example.com"
     assert drop_url_anchor("http://example.com/#anchor") == "http://example.com/"

@@ -1,18 +1,10 @@
 import asyncio
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from ..miose_toolkit_common import (
-        advance_call,
-        advance_class_call,
-        async_advance_call,
-    )
-else:
-    from src.miose_toolkit_common import (
-        advance_call,
-        advance_class_call,
-        async_advance_call,
-    )
+from miose_toolkit_common import (
+    advance_call,
+    advance_class_call,
+    async_advance_call,
+)
 
 
 def test_funny():

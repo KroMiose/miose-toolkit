@@ -1,67 +1,40 @@
+import json
 import os
-from typing import TYPE_CHECKING, ClassVar, List
+from typing import ClassVar, List
 
-if TYPE_CHECKING:
-    from ..miose_toolkit_llm import (
-        BaseScene,
-        BaseStore,
-        ModelResponse,
-        Runner,
-    )
-    from ..miose_toolkit_llm.clients.chat_openai import OpenAIChatClient
-    from ..miose_toolkit_llm.components import (
-        BaseComponent,  # 基础组件
-        JsonResolverComponent,  # JSON 解析组件
-        TextComponent,  # 文本提示词组件
-        VecFunctionComponent,  # 支持向量数据库检索的方法组件
-        VecHistoryComponent,  # 支持向量数据库检索的消息记录组件
-    )
-    from ..miose_toolkit_llm.creators.openai import (
-        AiMessage,
-        OpenAIPromptCreator,
-        SystemMessage,
-        UserMessage,
-    )
-    from ..miose_toolkit_llm.exceptions import (
-        ComponentRuntimeError,
-        ResolveError,
-        SceneRuntimeError,
-        TokenizerError,
-    )
-    from ..miose_toolkit_llm.tools.tokenizers import TikTokenizer
-    from ..miose_toolkit_llm.tools.vector_dbs import ChomaVecDb
-else:
-    from src.miose_toolkit_llm import (
-        BaseScene,
-        BaseStore,
-        ModelResponse,
-        Runner,
-    )
-    from src.miose_toolkit_llm.clients.chat_openai import OpenAIChatClient
-    from src.miose_toolkit_llm.components import (
-        BaseComponent,  # 基础组件
-        JsonResolverComponent,  # JSON 解析组件
-        TextComponent,  # 文本提示词组件
-        VecFunctionComponent,  # 支持向量数据库检索的方法组件
-        VecHistoryComponent,  # 支持向量数据库检索的消息记录组件
-    )
-    from src.miose_toolkit_llm.creators.openai import (
-        AiMessage,
-        OpenAIPromptCreator,
-        SystemMessage,
-        UserMessage,
-    )
-    from src.miose_toolkit_llm.exceptions import (
-        ComponentRuntimeError,
-        ResolveError,
-        SceneRuntimeError,
-        TokenizerError,
-    )
-    from src.miose_toolkit_llm.tools.tokenizers import TikTokenizer
-    from src.miose_toolkit_llm.tools.vector_dbs import ChomaVecDb
+import pytest
+from miose_toolkit_llm import (
+    BaseScene,
+    BaseStore,
+    ModelResponse,
+    Runner,
+)
+from miose_toolkit_llm.clients.chat_openai import OpenAIChatClient
+from miose_toolkit_llm.components import (
+    BaseComponent,  # 基础组件
+    JsonResolverComponent,  # JSON 解析组件
+    TextComponent,  # 文本提示词组件
+    VecFunctionComponent,  # 支持向量数据库检索的方法组件
+    VecHistoryComponent,  # 支持向量数据库检索的消息记录组件
+)
+from miose_toolkit_llm.creators.openai import (
+    AiMessage,
+    OpenAIPromptCreator,
+    SystemMessage,
+    UserMessage,
+)
+from miose_toolkit_llm.exceptions import (
+    ComponentRuntimeError,
+    ResolveError,
+    SceneRuntimeError,
+    TokenizerError,
+)
+from miose_toolkit_llm.tools.tokenizers import TikTokenizer
+from miose_toolkit_llm.tools.vector_dbs import ChomaVecDb
 
 
-async def test_main():
+@pytest.mark.asyncio
+async def test_basic_app():
 
     # 1. 构造一个应用场景
     class Scene(BaseScene):
@@ -160,10 +133,19 @@ async def test_main():
 
     # 4. 获取结果与解析
     try:
-        mr: ModelResponse = await scene.run()
+        mr: ModelResponse = await scene.run(
+            _use_test_output=json.dumps(
+                {
+                    "action_response": {
+                        "reaction": "你醒来时发现自己躺在一张柔软的床上，周围是一间装饰华丽的卧室。房间里摆放着古老的家具和神秘的魔法物品。窗外透进来微弱的晨光，你感到一丝清新的空气。你想要做些什么？",
+                    },
+                },
+            ),  # 测试用指定回复结果
+        )
         _ = mr.response_text  # 原始结果文本 (按需获取)
     except SceneRuntimeError as e:
         print(e)
+        raise
 
     try:
         resolved_response: CustomResponseResolver = CustomResponseResolver.resolve(
@@ -174,6 +156,7 @@ async def test_main():
         )  # 解析结果中的方法调用结果
     except ResolveError as e:
         print(e)
+        raise
 
     try:
         function_response.execute()  # 执行方法调用结果
@@ -192,3 +175,4 @@ async def test_main():
         response_file="temp/chat_response.json",
     )  # 保存响应提示词和结果到文件 (可选)
     mr.feedback(rate=5)  # 反馈生成质量到数据平台 (可选)
+    assert True  # 断言成功

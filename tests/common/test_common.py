@@ -1,9 +1,4 @@
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..miose_toolkit_common import Version
-else:
-    from src.miose_toolkit_common import Version
+from miose_toolkit_common import Version
 
 
 def test_common():

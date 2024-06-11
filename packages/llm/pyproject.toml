@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "miose-toolkit-llm"
-version = "0.0.7"
+version = "0.0.1"
 description = "Miose Toolkit 大语言模型模块"
 authors = ["KroMiose <li_xiangff@163.com>"]
 packages = [{ include = "miose_toolkit_llm", from = "src" }]

@@ -1,9 +1,4 @@
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..miose_toolkit_common import safe_float, safe_int
-else:
-    from src.miose_toolkit_common import safe_float, safe_int
+from miose_toolkit_common import safe_float, safe_int
 
 
 def test_convert():

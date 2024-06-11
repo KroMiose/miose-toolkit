@@ -5,6 +5,7 @@ import httpx
 import openai
 import pkg_resources
 
+from ..creators.base import BasePromptCreator
 from ..creators.openai import OpenAIPromptCreator
 from ..exceptions import (
     InvalidCredentialException,
@@ -89,7 +90,7 @@ async def gen_openai_chat_response(
             assert output, "Chat response is empty"
             return output, token_consumption
 
-        client: AsyncOpenAI = AsyncOpenAI(
+        client: AsyncOpenAI = AsyncOpenAI(  # type: ignore
             api_key=api_key,
             base_url=_OPENAI_BASE_URL,
             http_client=(
@@ -101,7 +102,7 @@ async def gen_openai_chat_response(
             ),
         )
 
-        res: ChatCompletion = await client.chat.completions.create(
+        res: ChatCompletion = await client.chat.completions.create(  # type: ignore
             model=model,
             messages=messages,  # type: ignore
             temperature=temperature,
@@ -158,12 +159,21 @@ class OpenAIChatClient(BaseClient):
         if proxy is not None:
             set_openai_proxy(proxy)
 
-    async def call(self, creator: OpenAIPromptCreator):
+    async def call(self, creator: BasePromptCreator, cr: ClientResponse):
         """调用聊天 API"""
 
-        cr = ClientResponse(prompt_creator=creator)
+        if not isinstance(creator, self.supported_creator):
+            raise TypeError("Creator not supported by this client")
 
-        messages = await creator.render()
+        messages: List[Dict[str, str]] = await creator.render()
+
+        if cr.test_output:
+            cr.update_token_info(total_tokens=25565)
+            cr.finish(
+                prompt_text=creator.transform_prompt(messages),
+                response_text=cr.test_output,
+            )
+            return cr
 
         output_str, token_consumption = await gen_openai_chat_response(
             model=self.model,
@@ -187,10 +197,13 @@ class OpenAIChatClient(BaseClient):
             ),
             max_tokens=(
                 self.max_tokens if creator.max_tokens is None else creator.max_tokens
-            ), 
+            ),
             api_key=self.api_key,
         )
 
         cr.update_token_info(total_tokens=token_consumption)
-        cr.finish(prompt_text=creator.transform_prompt(messages), response_text=output_str)
+        cr.finish(
+            prompt_text=creator.transform_prompt(messages),
+            response_text=output_str,
+        )
         return cr

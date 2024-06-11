@@ -1,10 +1,6 @@
 from pathlib import Path
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from ..miose_toolkit_logger import logger
-else:
-    from miose_toolkit_logger import logger
+from miose_toolkit_logger import logger
 
 
 def test_logger():

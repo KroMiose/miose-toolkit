@@ -1,21 +1,10 @@
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..miose_toolkit_common import (
-        advance_split,
-        drop_empty_from_list,
-        json_list_stringify_limit,
-        quick_value,
-        split_and_drop_empty,
-    )
-else:
-    from src.miose_toolkit_common import (
-        advance_split,
-        drop_empty_from_list,
-        json_list_stringify_limit,
-        quick_value,
-        split_and_drop_empty,
-    )
+from miose_toolkit_common import (
+    advance_split,
+    drop_empty_from_list,
+    json_list_stringify_limit,
+    quick_value,
+    split_and_drop_empty,
+)
 
 
 def test_list():
@@ -45,8 +34,13 @@ def test_list():
     assert split_and_drop_empty("1, ,", ",") == ["1"]
     assert split_and_drop_empty("1, , ", ",") == ["1"]
 
-    assert json_list_stringify_limit(["1", "2", "3"], 1024).replace(" ", "") == '["1","2","3"]'
-    assert json_list_stringify_limit(["1", "2", "3"], 10).replace(" ", "") == '["1","2"]'
+    assert (
+        json_list_stringify_limit(["1", "2", "3"], 1024).replace(" ", "")
+        == '["1","2","3"]'
+    )
+    assert (
+        json_list_stringify_limit(["1", "2", "3"], 10).replace(" ", "") == '["1","2"]'
+    )
     assert json_list_stringify_limit(["1", "2", "3"], 4).replace(" ", "") == "[]"
     assert json_list_stringify_limit(["1", "2", "3"], 3).replace(" ", "") == "[]"
 
