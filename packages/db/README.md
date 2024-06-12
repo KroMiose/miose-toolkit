@@ -4,13 +4,13 @@
 
 Database 子项目包含了一个对 sqlalchemy 进行了简单封装的数据库工具。
 
-## 测试用例库 -> [用例库](./src/tests)
+## 测试用例库 -> [用例库](/tests/db)
 
 测试用例库中包含了所有模块的测试用例，可以参考其中的代码来使用模块。
 
 ## 功能列表
 
-### 1. 数据库链接生成器 [测试用例](./src/tests/test_db_url.py)
+### 1. 数据库链接生成器 [测试用例](/tests/db/test_db_url.py)
 
 数据库链接生成器可以帮助你快速生成数据库链接，基本使用如下:
 
@@ -45,7 +45,7 @@ postgresql_url = gen_postgresql_db_url(
 sqlite_url = gen_sqlite_db_url(db_path="test.db")
 ```
 
-### 2. 数据库 ORM 工具 [测试用例](./src/tests/test_orm.py)
+### 2. 数据库 ORM 工具 [测试用例](/tests/db/test_orm.py)
 
 数据库 ORM 工具可以帮助你对象化数据库表，基本使用如下:
 

@@ -4,13 +4,13 @@
 
 Common 子项目包含了 Miose Toolkit 中所有子项目都会用到的公共代码和一些只依赖于一些通用库的常用工具。
 
-## 测试用例库 -> [用例库](./src/tests)
+## 测试用例库 -> [用例库](/tests/common)
 
 测试用例库中包含了所有模块的测试用例，可以参考其中的代码来使用模块。
 
 ## 功能列表
 
-### 1. 配置文件工具 [测试用例](./src/tests/test_config.py)
+### 1. 配置文件工具 [测试用例](/tests/common/test_config.py)
 
 配置文件工具可以帮助你快速 读取/导出 yaml 配置文件中的配置项，并支持类型注解。基本使用如下:
 
@@ -43,7 +43,7 @@ print(config.gen_config_schema())
 
 指定环境: 在运行项目时，可以通过运行参数 `env=xxx` 来指定环境，例如：`python main.py env=dev`，如果不指定环境，则默认为 `dev` 环境。
 
-### 2. 指令解析工具 [测试用例](./src/tests/test_command.py)
+### 2. 指令解析工具 [测试用例](/tests/common/test_command.py)
 
 指令解析工具可以帮助你快速构建自定义指令，支持指令 参数/选项 解析，基本使用如下:
 
