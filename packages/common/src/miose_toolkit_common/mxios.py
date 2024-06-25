@@ -25,10 +25,10 @@ class Response:
     ):
         self.text: str = text
         self.status_code: int = status_code
-        self._raw_resp: requests.Response = raw_resp
+        self._raw_resp: Union[requests.Response, aiohttp.ClientResponse] = raw_resp
 
     @property
-    def raw_resp(self) -> requests.Response:
+    def raw_resp(self) -> Union[requests.Response, aiohttp.ClientResponse]:
         """原始响应对象"""
         return self._raw_resp
 
@@ -50,12 +50,14 @@ class AioResponse(Response):
     ):
         self.text: str = text
         self.status_code: int = status_code
-        self._raw_resp: aiohttp.ClientResponse = raw_resp
+        self._raw_resp: Union[requests.Response, aiohttp.ClientResponse] = raw_resp
 
     @property
     def raw_resp(self) -> aiohttp.ClientResponse:
         """原始响应对象"""
-        return self._raw_resp
+        if isinstance(self._raw_resp, aiohttp.ClientResponse):
+            return self._raw_resp
+        raise TypeError("raw_resp is not aiohttp.ClientResponse")
 
 
 class Mxios:

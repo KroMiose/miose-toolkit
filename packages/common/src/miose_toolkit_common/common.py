@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 
 import pkg_resources
 
@@ -20,10 +20,14 @@ class Version:
     def __le__(self, other: "Version") -> bool:
         return self.__compare_versions(self.version, other.version) <= 0
 
-    def __eq__(self, other: "Version") -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Version):
+            raise TypeError("Cannot compare Version with non-Version object")
         return self.__compare_versions(self.version, other.version) == 0
 
-    def __ne__(self, other: "Version") -> bool:
+    def __ne__(self, other: object) -> bool:
+        if not isinstance(other, Version):
+            raise TypeError("Cannot compare Version with non-Version object")
         return self.__compare_versions(self.version, other.version) != 0
 
     def __gt__(self, other: "Version") -> bool:

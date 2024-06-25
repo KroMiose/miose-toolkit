@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 try:
-    import ujson as json
+    import ujson as json  # type: ignore
 except ImportError:
     import json
 

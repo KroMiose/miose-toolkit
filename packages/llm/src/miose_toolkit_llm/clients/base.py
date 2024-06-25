@@ -74,7 +74,7 @@ class BaseClient(ABC):
 
     @abstractmethod
     async def call(
-        self, creator: BasePromptCreator, cr: ClientResponse
+        self, creator: BasePromptCreator, cr: ClientResponse,
     ) -> ClientResponse:
         """调用 LLM 客户端获取响应
 
