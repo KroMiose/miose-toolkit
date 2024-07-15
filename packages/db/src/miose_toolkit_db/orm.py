@@ -1,9 +1,8 @@
-from datetime import datetime
 from importlib import import_module
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from sqlalchemy import Column, DateTime, create_engine
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -57,7 +56,6 @@ class MioOrm:
 
             # 初始化数据库连接:
             self._engine = create_engine(db_url, **self._db_args)
-
             self._connection = self._engine.connect()
 
             # 创建DBSession类型:
@@ -116,36 +114,33 @@ class MioOrm:
                 __tablename__ = table_name or cls.__name__.lower()
 
                 # 补充通用信息
-                created_time = Column(
-                    DateTime,
-                    default=datetime.now,
-                    comment="数据创建时间(db)",
-                    index=True,
-                )
-                last_updated_time = Column(
-                    DateTime,
-                    comment="最后更新时间 (爬取时检查到数据发生变化时更新)",
-                    index=True,
-                )
+                # created_time = Column(
+                #     DateTime,
+                #     default=datetime.now,
+                #     comment="数据创建时间(db)",
+                #     index=True,
+                # )
+                # last_updated_time = Column(
+                #     DateTime,
+                #     comment="最后更新时间 (爬取时检查到数据发生变化时更新)",
+                #     index=True,
+                # )
 
                 @classmethod
                 def add(cls, **kwarg) -> "ModelClass":
-                    """新增资源
+                    """新增行
 
                     Args:
-                    :param kwarg: 资源数据
+                    :param kwarg: 行数据
 
                     Returns:
-                    :return: 资源对象
+                    :return: 行对象
                     """
 
                     for k, v in kwarg.items():
                         if isinstance(v, (dict, list)):
                             kwarg[k] = json.dumps(v, ensure_ascii=False)
                     data = cls(**kwarg)
-
-                    current_time = datetime.now()
-                    data.last_updated_time = current_time
 
                     try:
                         db.add(data)
@@ -158,15 +153,13 @@ class MioOrm:
 
                 @classmethod
                 def batch_add(cls, data_list: List[Dict[str, Any]]) -> None:
-                    """批量新增资源 (暂不支持更新)
+                    """批量新增行 (暂不支持更新)
 
                     Args:
-                    :param data_list: 资源数据列表
+                    :param data_list: 行数据列表
                     """
 
-                    current_time = datetime.now()
                     for data in data_list:
-                        data["last_updated_time"] = current_time
                         for k, v in data.items():
                             if isinstance(v, (dict, list)):
                                 data[k] = json.dumps(v, ensure_ascii=False)
@@ -180,13 +173,13 @@ class MioOrm:
 
                 @classmethod
                 def get_by_pk(cls, pk_value) -> Optional["ModelClass"]:
-                    """根据主键查询资源
+                    """根据主键查询行
 
                     Args:
-                    :param pk_value: 资源主键值
+                    :param pk_value: 行主键值
 
                     Returns:
-                    :return: 资源对象 (不存在则返回 None)
+                    :return: 行对象 (不存在则返回 None)
                     """
 
                     return (
@@ -197,24 +190,52 @@ class MioOrm:
 
                 @classmethod
                 def get_by_field(cls, field: str, value: str) -> Optional["ModelClass"]:
-                    """根据字段查询资源"""
+                    """根据字段查询行"""
 
-                    return db.query(cls).filter(getattr(cls, field) == value).first()
+                    obj = db.query(cls)
+                    if not hasattr(cls, field):
+                        raise ValueError(f"Invalid field: {field}")
+                    return obj.filter(getattr(cls, field) == value).first()
+
+                @classmethod
+                def filter(cls, **kwarg) -> List["ModelClass"]:
+                    """筛选数据行"""
+
+                    obj = db.query(cls)
+                    for k, v in kwarg.items():
+                        if not hasattr(cls, k):
+                            raise ValueError(f"Invalid field: {k}")
+                        obj = obj.filter(getattr(cls, k) == v)
+                    ret = obj.first()
+                    if ret:
+                        return [ret]
+                    return []
 
                 @classmethod
                 def get_all(cls) -> List["ModelClass"]:
-                    """查询所有资源"""
+                    """查询所有行"""
 
                     return db.query(cls).all()  # type: ignore
 
-                def update(self, dic: Dict[str, Any]):
-                    """更新资源"""
+                def update(
+                    self,
+                    data: Optional[Dict[str, Any]] = None,
+                    auto_convert_json: bool = True,
+                    **kwarg,
+                ):
+                    """更新行"""
 
-                    for k, v in dic.items():
-                        if isinstance(v, (dict, list)):
-                            dic[k] = json.dumps(v, ensure_ascii=False)
-                    dic["last_update_time"] = datetime.now()
-                    for k, v in dic.items():
+                    if not data:
+                        data = {}
+
+                    data.update(kwarg)
+
+                    for k, v in data.items():
+                        if isinstance(v, (dict, list)) and auto_convert_json:
+                            data[k] = json.dumps(v, ensure_ascii=False)
+                        else:
+                            raise ValueError(f"Invalid value type: {type(v)}")
+                    for k, v in data.items():
                         setattr(self, k, v)
                     db.commit()
                     return self
@@ -232,7 +253,7 @@ class MioOrm:
                     return changed_fields
 
                 def delete(self) -> None:
-                    """删除资源"""
+                    """删除行"""
 
                     try:
                         db.delete(self)
@@ -243,13 +264,13 @@ class MioOrm:
 
                 @classmethod
                 def auto_insert(cls, **kwargs):
-                    """自动插入资源 (不存在则新增)
+                    """自动插入行 (不存在则新增)
 
                     Args:
-                    :param kwargs: 资源数据
+                    :param kwargs: 行数据
 
                     Returns:
-                    :return: 资源对象
+                    :return: 行对象
                     """
 
                     if primary_key in kwargs:
@@ -266,16 +287,16 @@ class MioOrm:
                     watch_fields: Optional[List[str]],
                     **kwargs,
                 ):
-                    """根据字段自动插入资源 (不存在则新增)
+                    """根据字段自动插入行 (不存在则新增)
 
                     Args:
                     :param field: 字段名
                     :param value: 字段值
                     :param watch_fields: 监控字段列表，仅在监控字段发生变化时更新时间
-                    :param kwargs: 资源数据
+                    :param kwargs: 行数据
 
                     Returns:
-                    :return: 资源对象
+                    :return: 行对象
                     """
 
                     # 如果watch_fields为空列表，则使用kwargs的键列表作为watch_fields
@@ -283,14 +304,7 @@ class MioOrm:
                         watch_fields = list(kwargs.keys())
 
                     item = cls.get_by_field(field, value)
-                    current_time = datetime.now()
                     if item:
-                        all_changed_fields = item.compare_change(kwargs)
-                        changed_fields = list(
-                            set(all_changed_fields) & set(watch_fields),
-                        )
-                        if len(changed_fields) > 0:
-                            item.update({"last_updated_time": current_time})
                         return item
                     return cls.add(**kwargs)
 

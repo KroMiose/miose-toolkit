@@ -104,6 +104,11 @@ def test_orm():
     all_data = DBTest2.get_all()
     assert len(all_data) == 3
 
+    # 测试筛选
+    filtered_data = DBTest2.filter(name="AutoInsertName")
+    assert len(filtered_data) == 1
+    assert filtered_data[0].name == "AutoInsertName"  # type:ignore
+
     # 关闭数据库连接
     db1.close_db_connection()
     db2.close_db_connection()
@@ -111,3 +116,7 @@ def test_orm():
     # 删除测试数据库
     Path("test1.temp.db").unlink(True)
     Path("test2.temp.db").unlink(True)
+
+
+if __name__ == "__main__":
+    test_orm()
