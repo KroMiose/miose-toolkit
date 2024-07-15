@@ -5,18 +5,6 @@
     <img src="https://img.shields.io/badge/license-Apache 2.0-6cg.svg" alt="license">
   </a>
   <img src="https://img.shields.io/badge/python-3.8+-6a9.svg" alt="python">
-  <a href="https://pypi.python.org/pypi/miose-toolkit-common">
-    <img src="https://img.shields.io/pypi/v/miose-toolkit-common.svg" alt="pypi">
-  </a>
-  <a href="https://pypi.python.org/pypi/miose-toolkit-logger">
-    <img src="https://img.shields.io/pypi/v/miose-toolkit-logger.svg" alt="pypi">
-  </a>
-  <a href="https://pypi.python.org/pypi/miose-toolkit-db">
-    <img src="https://img.shields.io/pypi/v/miose-toolkit-db.svg" alt="pypi">
-  </a>
-  <a href="https://pypi.python.org/pypi/miose-toolkit-llm">
-    <img src="https://img.shields.io/pypi/v/miose-toolkit-llm.svg" alt="pypi">
-  </a>
   <a href="https://jq.qq.com/?_wv=1027&k=71t9iCT7">
     <img src="https://img.shields.io/badge/加入交流群-636925153-c42.svg" alt="python">
   </a>
@@ -34,6 +22,15 @@ Miose Toolkit 是一个基于 Python 的个人工具箱，收集了一些个人�
 - [db](./packages/db/README.md) - 数据库 ORM 工具 (一个对 sqlalchemy 进行了简单封装的数据库工具)
 - [logger](./packages/logger/README.md) - 日志工具 (一个基于 loguru 的日志工具)
 - [llm](./packages/llm/README.md) - 大语言模型相关工具集 (一套组件化、工程化的 LLM 项目开发工具集)
+
+## 工具列表
+
+| 工具名称        | 简介                                         | 文档                                  | Release                                                         |
+| --------------- | -------------------------------------------- | ------------------------------------- | --------------------------------------------------------------- |
+| 通用工具集      | 包含配置文件工具, 指令解析工具等             | [common](./packages/common/README.md) | ![PyPI](https://img.shields.io/pypi/v/miose-toolkit-common.svg) |
+| 数据库 ORM 工具 | 一个对 sqlalchemy 进行了简单封装的数据库工具 | [db](./packages/db/README.md)         | ![PyPI](https://img.shields.io/pypi/v/miose-toolkit-db.svg)     |
+| 日志工具        | 一个基于 loguru 的日志工具                   | [logger](./packages/logger/README.md) | ![PyPI](https://img.shields.io/pypi/v/miose-toolkit-logger.svg) |
+| LLM 开发框架    | 一套组件化、工程化的 LLM 项目开发框架        | [llm](./packages/llm/README.md)       | ![PyPI](https://img.shields.io/pypi/v/miose-toolkit-llm.svg)    |
 
 ## 计划中工具列表
 
