@@ -16,13 +16,6 @@ Miose Toolkit 是一个基于 Python 的个人工具箱，收集了一些个人�
 
 该工具库会持续处于开发阶段，如果需要使用建议锁定版本号，以免出现不兼容问题。
 
-## 可用工具列表
-
-- [common](./packages/common/README.md) - 通用工具集 (包含配置文件工具, 指令解析工具等)
-- [db](./packages/db/README.md) - 数据库 ORM 工具 (一个对 sqlalchemy 进行了简单封装的数据库工具)
-- [logger](./packages/logger/README.md) - 日志工具 (一个基于 loguru 的日志工具)
-- [llm](./packages/llm/README.md) - 大语言模型相关工具集 (一套组件化、工程化的 LLM 项目开发工具集)
-
 ## 工具列表
 
 | 工具名称        | 简介                                         | 文档                                  | Release                                                         |
