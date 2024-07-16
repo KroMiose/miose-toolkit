@@ -51,24 +51,25 @@ sqlite_url = gen_sqlite_db_url(db_path="test.db")
 
 ```python
 from miose_toolkit_db import (
+    Column,
+    Mapped,
+    MappedColumn,
+    MioModel,
     MioOrm,
     gen_sqlite_db_url,
 )
 
 # 引入 sqlalchemy 数据模型
-from sqlalchemy import (
-    Column,
-    String,
-)
+from sqlalchemy import String
 
 # 创建数据库连接 (以 SQLite 为例，可搭配数据库链接生成器使用其它数据库)
 db = MioOrm(gen_sqlite_db_url("test.db"))
 
-# 定义数据模型
+# 定义数据模型 (注解方式)
 @db.reg_predefine_data_model(table_name="test", primary_key="id")
-class DBTest:
-    id = Column(String(length=28), primary_key=True)
-    name = Column(String(length=128), comment="名称")
+class DBTest(MioModel):
+    id: Mapped[str] = MappedColumn(String(length=28), primary_key=True)
+    name: Mapped[str] = MappedColumn(String(length=128), comment="名称")
     # ... 其他字段
 
 # 创建数据表
@@ -77,23 +78,22 @@ db.create_all()
 # 添加数据
 DBTest.add(
     id="1",
-    name="TestName",
+    name="test_name",
     # ... 其他字段
 )
 
 # 查询数据
 retrieved_data = DBTest.get_by_pk("1")
-print(retrieved_data.name)  # 输出: TestName
+print(retrieved_data.name)  # 输出: test_name
 
 # 更新数据
-DBTest.update(
-    retrieved_data,
+retrieved_data.update(
     name="NewName",
     ... # 其他字段
 )
 
 # 删除数据
-DBTest.delete(retrieved_data)
+retrieved_data.delete()
 
 # 关闭数据库连接
 db.close_db_connection()

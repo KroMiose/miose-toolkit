@@ -1,15 +1,81 @@
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type, TypeVar
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm.query import Query
 
 try:
     import ujson as json  # type: ignore
 except ImportError:
     import json
+
+
+T = TypeVar("T", bound="MioModel")
+
+
+class MioModel:
+    """数据模型基类"""
+
+    @classmethod
+    def add(cls: Type[T], **kwarg) -> T:
+        """新增行"""
+        raise NotImplementedError
+
+    @classmethod
+    def batch_add(cls, data_list: List[Dict[str, Any]]) -> None:
+        """批量新增行 (暂不支持更新)"""
+        raise NotImplementedError
+
+    @classmethod
+    def get_by_pk(cls: Type[T], pk_value: Any) -> Optional[T]:
+        """根据主键查询行"""
+        raise NotImplementedError
+
+    @classmethod
+    def get_by_field(cls: Type[T], field: str, value: str) -> Optional[T]:
+        """根据字段查询行"""
+        raise NotImplementedError
+
+    @classmethod
+    def filter(cls: Type[T], **kwarg) -> List[T]:
+        """筛选数据行"""
+        raise NotImplementedError
+
+    @classmethod
+    def get_all(cls: Type[T]) -> List[T]:
+        """查询所有行"""
+        raise NotImplementedError
+
+    def update(self: T, data: Optional[Dict[str, Any]] = None, **kwarg) -> T:
+        """更新行"""
+        raise NotImplementedError
+
+    def delete(self) -> None:
+        """删除行"""
+        raise NotImplementedError
+
+    @classmethod
+    def auto_insert(cls: Type[T], **kwarg) -> T:
+        """自动插入数据"""
+        raise NotImplementedError
+
+    @classmethod
+    def auto_insert_by_field(
+        cls: Type[T],
+        field: str,
+        value: str,
+        **kwarg,
+    ) -> T:
+        """根据字段自动插入数据"""
+        raise NotImplementedError
+
+    @classmethod
+    def sqa_query(cls: Type[T]) -> Query[T]:
+        """获取 SQLAlchemy 查询对象"""
+        raise NotImplementedError
 
 
 class MioOrm:
@@ -104,7 +170,7 @@ class MioOrm:
 
         db = self._db
 
-        def modal_class_wrapper(cls):
+        def modal_class_wrapper(cls: Type[T]) -> Type[T]:
             """数据模型装饰器"""
 
             class ModelClass(cls, self.get_sqa_Base()):
@@ -113,21 +179,8 @@ class MioOrm:
                 __allow_unmapped__ = True
                 __tablename__ = table_name or cls.__name__.lower()
 
-                # 补充通用信息
-                # created_time = Column(
-                #     DateTime,
-                #     default=datetime.now,
-                #     comment="数据创建时间(db)",
-                #     index=True,
-                # )
-                # last_updated_time = Column(
-                #     DateTime,
-                #     comment="最后更新时间 (爬取时检查到数据发生变化时更新)",
-                #     index=True,
-                # )
-
                 @classmethod
-                def add(cls, **kwarg) -> "ModelClass":
+                def add(cls: Type[T], **kwarg) -> T:
                     """新增行
 
                     Args:
@@ -172,7 +225,7 @@ class MioOrm:
                         raise
 
                 @classmethod
-                def get_by_pk(cls, pk_value) -> Optional["ModelClass"]:
+                def get_by_pk(cls, pk_value: Any):
                     """根据主键查询行
 
                     Args:
@@ -189,7 +242,7 @@ class MioOrm:
                     )
 
                 @classmethod
-                def get_by_field(cls, field: str, value: str) -> Optional["ModelClass"]:
+                def get_by_field(cls, field: str, value: str):
                     """根据字段查询行"""
 
                     obj = db.query(cls)
@@ -198,7 +251,7 @@ class MioOrm:
                     return obj.filter(getattr(cls, field) == value).first()
 
                 @classmethod
-                def filter(cls, **kwarg) -> List["ModelClass"]:
+                def filter(cls: Type[T], **kwarg) -> List[T]:
                     """筛选数据行"""
 
                     obj = db.query(cls)
@@ -206,13 +259,10 @@ class MioOrm:
                         if not hasattr(cls, k):
                             raise ValueError(f"Invalid field: {k}")
                         obj = obj.filter(getattr(cls, k) == v)
-                    ret = obj.first()
-                    if ret:
-                        return [ret]
-                    return []
+                    return obj.all()
 
                 @classmethod
-                def get_all(cls) -> List["ModelClass"]:
+                def get_all(cls: Type[T]) -> List[T]:
                     """查询所有行"""
 
                     return db.query(cls).all()  # type: ignore
@@ -258,12 +308,13 @@ class MioOrm:
                     try:
                         db.delete(self)
                         db.commit()
+                        del self
                     except Exception:
                         db.rollback()
                         raise
 
                 @classmethod
-                def auto_insert(cls, **kwargs):
+                def auto_insert(cls: Type[T], **kwargs) -> T:
                     """自动插入行 (不存在则新增)
 
                     Args:
@@ -281,35 +332,29 @@ class MioOrm:
 
                 @classmethod
                 def auto_insert_by_field(
-                    cls,
+                    cls: Type[T],
                     field: str,
                     value: str,
-                    watch_fields: Optional[List[str]],
                     **kwargs,
-                ):
+                ) -> T:
                     """根据字段自动插入行 (不存在则新增)
 
                     Args:
                     :param field: 字段名
                     :param value: 字段值
-                    :param watch_fields: 监控字段列表，仅在监控字段发生变化时更新时间
                     :param kwargs: 行数据
 
                     Returns:
                     :return: 行对象
                     """
 
-                    # 如果watch_fields为空列表，则使用kwargs的键列表作为watch_fields
-                    if not watch_fields:
-                        watch_fields = list(kwargs.keys())
-
                     item = cls.get_by_field(field, value)
                     if item:
-                        return item
+                        return item.update(data=kwargs)
                     return cls.add(**kwargs)
 
                 @classmethod
-                def sqa_query(cls):
+                def sqa_query(cls: Type[T]) -> Query[T]:
                     """获取 SQLAlchemy 查询对象0
 
                     Returns:

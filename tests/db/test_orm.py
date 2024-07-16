@@ -1,10 +1,13 @@
 from pathlib import Path
 
 from miose_toolkit_db import (
+    Mapped,
+    MappedColumn,
+    MioModel,
     MioOrm,
     gen_sqlite_db_url,
 )
-from sqlalchemy import Column, String
+from sqlalchemy import String
 
 
 def test_orm():
@@ -17,18 +20,18 @@ def test_orm():
     db2 = MioOrm(gen_sqlite_db_url("test2.temp.db"))
 
     @db1.reg_predefine_data_model(table_name="test", primary_key="id")
-    class DBTest1:
-        id = Column(String(length=28), primary_key=True)
-        name = Column(String(length=128), comment="名称")
-        url = Column(String(length=256), comment="链接")
-        extra_info = Column(String(length=1024), comment="额外信息")
+    class DBTest1(MioModel):
+        id: Mapped[str] = MappedColumn(String(length=28), primary_key=True)
+        name: Mapped[str] = MappedColumn(String(length=128), comment="名称")
+        url: Mapped[str] = MappedColumn(String(length=256), comment="链接")
+        extra_info: Mapped[str] = MappedColumn(String(length=1024), comment="额外信息")
 
     @db2.reg_predefine_data_model(table_name="test", primary_key="id")
-    class DBTest2:
-        id = Column(String(length=28), primary_key=True)
-        name = Column(String(length=128), comment="名称")
-        url = Column(String(length=256), comment="链接")
-        extra_info = Column(String(length=1024), comment="额外信息")
+    class DBTest2(MioModel):
+        id: Mapped[str] = MappedColumn(String(length=28), primary_key=True)
+        name: Mapped[str] = MappedColumn(String(length=128), comment="名称")
+        url: Mapped[str] = MappedColumn(String(length=256), comment="链接")
+        extra_info: Mapped[str] = MappedColumn(String(length=1024), comment="额外信息")
 
     # 创建数据表
     db1.create_all()
@@ -46,7 +49,7 @@ def test_orm():
 
     # 根据 ID 查询数据
     retrieved_data1 = DBTest1.get_by_pk("1")
-    assert retrieved_data1.name == "TestName1"  # type:ignore
+    assert retrieved_data1 and retrieved_data1.name == "TestName1"
 
     # 从第一个数据库提取一条数据
     retrieved_data1 = DBTest1.get_by_pk("1")
@@ -65,10 +68,10 @@ def test_orm():
 
     # 查询第二个数据库
     retrieved_data2 = DBTest2.get_by_pk("1")
-    assert retrieved_data2.name == "TestName2"  # type:ignore
+    assert retrieved_data2 and retrieved_data2.name == "TestName2"
 
     # 测试删除数据
-    DBTest2.delete(retrieved_data2)
+    retrieved_data2.delete()
     deleted_data2 = DBTest2.get_by_pk("1")
     assert deleted_data2 is None
 
