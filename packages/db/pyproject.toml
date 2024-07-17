@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "miose-toolkit-db"
-version = "0.1.2"
+version = "0.2.0"
 description = "Miose Toolkit 数据库模块"
 authors = ["KroMiose <li_xiangff@163.com>"]
 packages = [{ include = "miose_toolkit_db", from = "src" }]

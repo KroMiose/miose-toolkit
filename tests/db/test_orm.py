@@ -5,6 +5,8 @@ from miose_toolkit_db import (
     MappedColumn,
     MioModel,
     MioOrm,
+    asc,
+    desc,
     gen_sqlite_db_url,
 )
 from sqlalchemy import String
@@ -40,10 +42,10 @@ def test_orm():
     # 添加测试数据到第一个数据
     DBTest1.add(
         data={
-            DBTest1.id.key: "1",
-            DBTest1.name.key: "TestName1",
-            DBTest1.url.key: "http://example.com/1",
-            DBTest1.extra_info.key: {"key": "value1"},
+            DBTest1.id: "1",
+            DBTest1.name: "TestName1",
+            DBTest1.url: "http://example.com/1",
+            DBTest1.extra_info: {"key": "value1"},
         },
     )
 
@@ -51,8 +53,9 @@ def test_orm():
     retrieved_data1 = DBTest1.get_by_pk("1")
     assert retrieved_data1 and retrieved_data1.name == "TestName1"
 
-    # 从第一个数据库提取一条数据
-    retrieved_data1 = DBTest1.get_by_pk("1")
+    # 根据 字段查询数据
+    retrieved_data2 = DBTest1.get_by_field(field=DBTest1.name, value="TestName1")
+    assert retrieved_data2 and retrieved_data2.name == "TestName1"
 
     # 插入到第二个数据库
     if retrieved_data1:
@@ -67,11 +70,11 @@ def test_orm():
         raise Exception("Failed to get data from DBTest1")
 
     # 查询第二个数据库
-    retrieved_data2 = DBTest2.get_by_pk("1")
-    assert retrieved_data2 and retrieved_data2.name == "TestName2"
+    retrieved_data3 = DBTest2.get_by_pk("1")
+    assert retrieved_data3 and retrieved_data3.name == "TestName2"
 
     # 测试删除数据
-    retrieved_data2.delete()
+    retrieved_data3.delete()
     deleted_data2 = DBTest2.get_by_pk("1")
     assert deleted_data2 is None
 
@@ -108,9 +111,26 @@ def test_orm():
     assert len(all_data) == 3
 
     # 测试筛选
-    filtered_data = DBTest2.filter(conditions={DBTest2.name.key: "AutoInsertName"})
+    filtered_data = DBTest2.filter(conditions={DBTest2.name: "AutoInsertName"})
     assert len(filtered_data) == 1
     assert filtered_data[0].name == "AutoInsertName"  # type:ignore
+
+    # 测试复杂筛选
+    filtered_data = DBTest2.filter(
+        conditions={DBTest2.name: "AutoInsertName"},
+        fields=[DBTest2.name],
+        order_by=[desc(DBTest2.id)],
+        limit=1,
+        offset=0,
+    )
+    assert len(filtered_data) == 1
+    assert filtered_data[0].name == "AutoInsertName"
+    try:
+        assert filtered_data[0].url is None  # type:ignore
+    except AttributeError:
+        pass
+    else:
+        raise Exception("Failed to filter data with specified fields")
 
     # 关闭数据库连接
     db1.close_db_connection()

@@ -1,10 +1,11 @@
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, Union
 
-from sqlalchemy import create_engine
+from sqlalchemy import UnaryExpression, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.query import Query
 
 try:
@@ -20,7 +21,11 @@ class MioModel:
     """数据模型基类"""
 
     @classmethod
-    def add(cls: Type[T], data: Optional[Dict[str, Any]] = None, **kwarg) -> T:
+    def add(
+        cls: Type[T],
+        data: Optional[Dict[Union[str, InstrumentedAttribute], Any]] = None,
+        **kwarg,
+    ) -> T:
         """新增行"""
         raise NotImplementedError
 
@@ -30,30 +35,52 @@ class MioModel:
         raise NotImplementedError
 
     @classmethod
-    def get_by_pk(cls: Type[T], pk_value: Any) -> Optional[T]:
+    def get_by_pk(
+        cls: Type[T],
+        pk_value: Any,
+        fields: Optional[List[InstrumentedAttribute]] = None,
+    ) -> Optional[T]:
         """根据主键查询行"""
         raise NotImplementedError
 
     @classmethod
-    def get_by_field(cls: Type[T], field: str, value: str) -> Optional[T]:
+    def get_by_field(
+        cls: Type[T],
+        field: InstrumentedAttribute,
+        value: str,
+        fields: Optional[List[InstrumentedAttribute]] = None,
+        allow_multiple=False,
+    ) -> Optional[T]:
         """根据字段查询行"""
         raise NotImplementedError
 
     @classmethod
     def filter(
         cls: Type[T],
-        conditions: Optional[Dict[str, Any]] = None,
+        conditions: Optional[Dict[Union[str, InstrumentedAttribute], Any]] = None,
+        fields: Optional[List[InstrumentedAttribute]] = None,
+        order_by: Optional[List[UnaryExpression]] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+        convert_json: bool = True,
         **kwarg,
     ) -> List[T]:
         """筛选数据行"""
         raise NotImplementedError
 
     @classmethod
-    def get_all(cls: Type[T]) -> List[T]:
+    def get_all(
+        cls: Type[T],
+        fields: Optional[List[InstrumentedAttribute]] = None,
+    ) -> List[T]:
         """查询所有行"""
         raise NotImplementedError
 
-    def update(self: T, data: Optional[Dict[str, Any]] = None, **kwarg) -> T:
+    def update(
+        self: T,
+        data: Optional[Dict[Union[str, InstrumentedAttribute], Any]] = None,
+        **kwarg,
+    ) -> T:
         """更新行"""
         raise NotImplementedError
 
@@ -62,15 +89,20 @@ class MioModel:
         raise NotImplementedError
 
     @classmethod
-    def auto_insert(cls: Type[T], data: Optional[Dict[str, Any]] = None, **kwarg) -> T:
+    def auto_insert(
+        cls: Type[T],
+        data: Optional[Dict[Union[str, InstrumentedAttribute], Any]] = None,
+        **kwarg,
+    ) -> T:
         """自动插入数据"""
         raise NotImplementedError
 
     @classmethod
     def auto_insert_by_field(
         cls: Type[T],
-        field: str,
+        field: InstrumentedAttribute,
         value: str,
+        data: Optional[Dict[Union[str, InstrumentedAttribute], Any]] = None,
         **kwarg,
     ) -> T:
         """根据字段自动插入数据"""
@@ -186,7 +218,7 @@ class MioOrm:
                 @classmethod
                 def add(
                     cls: Type[T],
-                    data: Optional[Dict[str, Any]] = None,
+                    data: Optional[Dict[Union[str, InstrumentedAttribute], Any]] = None,
                     convert_json: bool = True,
                     **kwarg,
                 ) -> T:
@@ -237,7 +269,11 @@ class MioOrm:
                         raise
 
                 @classmethod
-                def get_by_pk(cls, pk_value: Any):
+                def get_by_pk(
+                    cls,
+                    pk_value: Any,
+                    fields: Optional[List[InstrumentedAttribute]] = None,
+                ):
                     """根据主键查询行
 
                     Args:
@@ -248,19 +284,25 @@ class MioOrm:
                     """
 
                     return (
-                        db.query(cls)
+                        (db.query(*fields) if fields else db.query(cls))
                         .filter(getattr(cls, primary_key) == pk_value)
                         .first()
                     )
 
                 @classmethod
-                def get_by_field(cls, field: str, value: str, allow_multiple=False):
+                def get_by_field(
+                    cls,
+                    field: InstrumentedAttribute,
+                    value: str,
+                    fields: Optional[List[InstrumentedAttribute]] = None,
+                    allow_multiple=False,
+                ):
                     """根据字段查询行"""
 
-                    obj = db.query(cls)
-                    if not hasattr(cls, field):
+                    obj = db.query(*fields) if fields else db.query(cls)
+                    if not hasattr(cls, field.key):
                         raise ValueError(f"Invalid field: {field}")
-                    res = obj.filter(getattr(cls, field) == value).limit(2).all()
+                    res = obj.filter(getattr(cls, field.key) == value).limit(2).all()
                     if not allow_multiple and len(res) > 1:
                         raise ValueError(f"Multiple results found for {field}: {value}")
                     return res[0] if res else None
@@ -268,46 +310,60 @@ class MioOrm:
                 @classmethod
                 def filter(
                     cls: Type[T],
-                    conditions: Optional[Dict[str, Any]] = None,
+                    conditions: Optional[
+                        Dict[Union[str, InstrumentedAttribute], Any]
+                    ] = None,
+                    fields: Optional[List[InstrumentedAttribute]] = None,
+                    order_by: Optional[List[UnaryExpression]] = None,
+                    limit: Optional[int] = None,
+                    offset: Optional[int] = None,
                     convert_json: bool = True,
                     **kwarg,
                 ) -> List[T]:
                     """筛选数据行"""
 
-                    conditions = _merge_dict(
+                    merged_conditions = _merge_dict(
                         conditions,
                         kwarg,
                         cls,
                         convert_json=convert_json,
                     )
-                    obj = db.query(cls)
-                    for k, v in conditions.items():
+
+                    obj = db.query(*fields) if fields else db.query(cls)
+                    for k, v in merged_conditions.items():
                         if not hasattr(cls, k):
                             raise ValueError(f"Invalid field: {k}")
                         obj = obj.filter(getattr(cls, k) == v)
+                    if order_by:
+                        obj = obj.order_by(*order_by)
+                    obj = obj.limit(limit) if limit else obj
+                    obj = obj.offset(offset) if offset else obj
                     return obj.all()
 
                 @classmethod
-                def get_all(cls: Type[T]) -> List[T]:
+                def get_all(
+                    cls: Type[T],
+                    fields: Optional[List[InstrumentedAttribute]] = None,
+                ) -> List[T]:
                     """查询所有行"""
 
-                    return db.query(cls).all()  # type: ignore
+                    return (db.query(*fields) if fields else db.query(cls)).all()
 
                 def update(
                     self,
-                    data: Optional[Dict[str, Any]] = None,
+                    data: Optional[Dict[Union[str, InstrumentedAttribute], Any]] = None,
                     convert_json: bool = True,
                     **kwarg,
                 ):
                     """更新行"""
 
-                    data = _merge_dict(
+                    merged_data = _merge_dict(
                         data,
                         kwarg,
                         cls,
                         convert_json=convert_json,
                     )
-                    for k, v in data.items():
+                    for k, v in merged_data.items():
                         setattr(self, k, v)
                     db.commit()
                     return self
@@ -326,7 +382,7 @@ class MioOrm:
                 @classmethod
                 def auto_insert(
                     cls: Type[T],
-                    data: Optional[Dict[str, Any]] = None,
+                    data: Optional[Dict[Union[str, InstrumentedAttribute], Any]] = None,
                     **kwargs,
                 ) -> T:
                     """自动插入行 (不存在则新增)
@@ -338,19 +394,19 @@ class MioOrm:
                     :return: 行对象
                     """
 
-                    data = _merge_dict(data, kwargs, cls, convert_json=True)
-                    if primary_key in data:
-                        item = cls.get_by_pk(data[primary_key])
+                    merged_data = _merge_dict(data, kwargs, cls, convert_json=True)
+                    if primary_key in merged_data:
+                        item = cls.get_by_pk(merged_data[primary_key])
                         if item:
-                            return item.update(data)
-                    return cls.add(**data)
+                            return item.update(**merged_data)
+                    return cls.add(**merged_data)
 
                 @classmethod
                 def auto_insert_by_field(
                     cls: Type[T],
-                    field: str,
+                    field: InstrumentedAttribute,
                     value: str,
-                    data: Optional[Dict[str, Any]] = None,
+                    data: Optional[Dict[Union[str, InstrumentedAttribute], Any]] = None,
                     convert_json: bool = True,
                     **kwargs,
                 ) -> T:
@@ -365,11 +421,16 @@ class MioOrm:
                     :return: 行对象
                     """
 
-                    data = _merge_dict(data, kwargs, cls, convert_json=convert_json)
+                    merged_data = _merge_dict(
+                        data,
+                        kwargs,
+                        cls,
+                        convert_json=convert_json,
+                    )
                     item = cls.get_by_field(field, value)
                     if item:
-                        return item.update(data=data)
-                    return cls.add(**data)
+                        return item.update(**merged_data)
+                    return cls.add(**merged_data)
 
                 @classmethod
                 def sqa_query(cls: Type[T]) -> Query[T]:
@@ -389,7 +450,7 @@ class MioOrm:
 
 
 def _merge_dict(
-    base_dict: Optional[Dict[str, Any]],
+    base_dict: Optional[Dict[Union[str, InstrumentedAttribute], Any]],
     new_dict: Optional[Dict[str, Any]],
     model_class: Type[MioModel],
     convert_json: bool = True,
@@ -409,17 +470,34 @@ def _merge_dict(
     base_dict = base_dict or {}
     new_dict = new_dict or {}
 
-    base_dict.update(new_dict)
+    d1: Dict[str, Any] = {}
+    d2: Dict[str, Any] = {}
 
-    for key in list(base_dict.keys()):
+    for key in base_dict:
+        if isinstance(key, InstrumentedAttribute):
+            key_str: str = key.key
+            d1[key_str] = base_dict[key]
+        else:
+            d1[key] = base_dict[key]
+
+    for key in new_dict:
+        if isinstance(key, InstrumentedAttribute):
+            key_str = key.key
+            d2[key_str] = new_dict[key]
+        else:
+            d2[key] = new_dict[key]
+
+    d1.update(d2)
+
+    for key in list(d1.keys()):
         if isinstance(getattr(model_class, key), Callable):
             raise TypeError(f"Invalid field: {key} is a function")
         if not hasattr(model_class, key):
             raise ValueError(f"Invalid field: {key}")
-        if isinstance(base_dict[key], (dict, list)):
+        if isinstance(d1[key], (dict, list)):
             if convert_json:
-                base_dict[key] = json.dumps(base_dict[key], ensure_ascii=False)
+                d1[key] = json.dumps(d1[key], ensure_ascii=False)
             else:
-                raise ValueError(f"Invalid value type: {type(base_dict[key])}")
+                raise ValueError(f"Invalid value type: {type(d1[key])}")
 
-    return base_dict
+    return d1

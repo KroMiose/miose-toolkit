@@ -51,15 +51,17 @@ sqlite_url = gen_sqlite_db_url(db_path="test.db")
 
 ```python
 from miose_toolkit_db import (
+    asc,
+    gen_sqlite_db_url,
+    desc,
     Column,
     Mapped,
     MappedColumn,
     MioModel,
     MioOrm,
-    gen_sqlite_db_url,
 )
 
-# 引入 sqlalchemy 数据模型
+# 引入 sqlalchemy 数据字段模型
 from sqlalchemy import String, Text
 
 # 创建数据库连接 (以 SQLite 为例，可搭配数据库链接生成器使用其它数据库)
@@ -97,9 +99,33 @@ DBTest.add(
     convert_json=True,  # 自动序列化 JSON 字段
 )
 
-# 查询数据
+# 单条查询数据
 retrieved_data = DBTest.get_by_pk("1")
 print(retrieved_data.name)  # 输出: test_name
+
+# 单条查询数据 (字段查询)
+retrieved_data = DBTest.get_by_field(
+    field=DBTest.name,  # 查询字段
+    value="TestName1",  # 查询值
+    allow_multiple=False    # 是否允许多条数据 (默认 False， 即查询结果不唯一则报错)
+)
+print(retrieved_data.url)  # 输出: http://example.com/1
+
+# 简单过滤查询
+filtered_data = DBTest.filter(
+    conditions={
+        DBTest.name: "TestName1",
+    }
+)
+
+# 复杂过滤查询
+filtered_data = DBTest.filter(
+    conditions={DBTest.name: "AutoInsertName"},  # 条件
+    fields=[DBTest.name],   # 指定返回字段
+    order_by=[desc(DBTest.id)],  # 排序
+    limit=10,    # 限制返回条数
+    offset=0,    # 偏移量
+)
 
 # 更新数据 (直接更新)
 retrieved_data.update(
