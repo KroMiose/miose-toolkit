@@ -37,15 +37,15 @@ def test_orm():
     db1.create_all()
     db2.create_all()
 
-    # 添加测试数据到第一个数据库
-    test_data1 = {
-        "id": "1",
-        "name": "TestName1",
-        "url": "http://example.com/1",
-        "extra_info": {"key": "value1"},
-    }
-
-    DBTest1.add(**test_data1)
+    # 添加测试数据到第一个数据
+    DBTest1.add(
+        data={
+            DBTest1.id.key: "1",
+            DBTest1.name.key: "TestName1",
+            DBTest1.url.key: "http://example.com/1",
+            DBTest1.extra_info.key: {"key": "value1"},
+        },
+    )
 
     # 根据 ID 查询数据
     retrieved_data1 = DBTest1.get_by_pk("1")
@@ -108,7 +108,7 @@ def test_orm():
     assert len(all_data) == 3
 
     # 测试筛选
-    filtered_data = DBTest2.filter(name="AutoInsertName")
+    filtered_data = DBTest2.filter(conditions={DBTest2.name.key: "AutoInsertName"})
     assert len(filtered_data) == 1
     assert filtered_data[0].name == "AutoInsertName"  # type:ignore
 

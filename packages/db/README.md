@@ -2,7 +2,7 @@
 
 ## 介绍
 
-Database 子项目包含了一个对 sqlalchemy 进行了简单封装的数据库工具。
+Database 子项目包含了一个对 sqlalchemy 进行了简单封装和对象化的数据库工具。
 
 ## 测试用例库 -> [用例库](/tests/db)
 
@@ -60,36 +60,61 @@ from miose_toolkit_db import (
 )
 
 # 引入 sqlalchemy 数据模型
-from sqlalchemy import String
+from sqlalchemy import String, Text
 
 # 创建数据库连接 (以 SQLite 为例，可搭配数据库链接生成器使用其它数据库)
 db = MioOrm(gen_sqlite_db_url("test.db"))
 
-# 定义数据模型 (注解方式)
+# 定义数据模型 (推荐使用注解方式)
 @db.reg_predefine_data_model(table_name="test", primary_key="id")
 class DBTest(MioModel):
     id: Mapped[str] = MappedColumn(String(length=28), primary_key=True)
     name: Mapped[str] = MappedColumn(String(length=128), comment="名称")
+    url: Mapped[str] = MappedColumn(String(length=256), comment="链接")
+    extra_info: Mapped[dict] = MappedColumn(Text, comment="额外信息")
     # ... 其他字段
 
 # 创建数据表
 db.create_all()
 
-# 添加数据
+# 添加行 (直接添加)
 DBTest.add(
     id="1",
     name="test_name",
+    url="http://example.com/1",
+    extra_info={"key": "value1"},
     # ... 其他字段
+)
+
+# 添加行 (字段提示方式 - 推荐)
+DBTest.add(
+    data={
+        DBTest.id.key: "1",
+        DBTest.name.key: "TestName1",
+        DBTest.url.key: "http://example.com/1",
+        DBTest.extra_info.key: {"key": "value1"},
+    },
+    convert_json=True,  # 自动序列化 JSON 字段
 )
 
 # 查询数据
 retrieved_data = DBTest.get_by_pk("1")
 print(retrieved_data.name)  # 输出: test_name
 
-# 更新数据
+# 更新数据 (直接更新)
 retrieved_data.update(
     name="NewName",
     ... # 其他字段
+)
+
+# 更新数据 (字段提示方式 - 推荐)
+retrieved_data.update(
+    data={
+        DBTest.name.key: "NewName2",
+        DBTest.url.key: "http://example.com/2",
+        DBTest.extra_info.key: {"key": "value2"},
+    },
+    convert_json=True,  # 自动序列化 JSON 字段
 )
 
 # 删除数据

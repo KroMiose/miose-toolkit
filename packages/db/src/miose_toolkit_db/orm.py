@@ -1,6 +1,6 @@
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type, TypeVar
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -20,7 +20,7 @@ class MioModel:
     """数据模型基类"""
 
     @classmethod
-    def add(cls: Type[T], **kwarg) -> T:
+    def add(cls: Type[T], data: Optional[Dict[str, Any]] = None, **kwarg) -> T:
         """新增行"""
         raise NotImplementedError
 
@@ -40,7 +40,11 @@ class MioModel:
         raise NotImplementedError
 
     @classmethod
-    def filter(cls: Type[T], **kwarg) -> List[T]:
+    def filter(
+        cls: Type[T],
+        conditions: Optional[Dict[str, Any]] = None,
+        **kwarg,
+    ) -> List[T]:
         """筛选数据行"""
         raise NotImplementedError
 
@@ -58,7 +62,7 @@ class MioModel:
         raise NotImplementedError
 
     @classmethod
-    def auto_insert(cls: Type[T], **kwarg) -> T:
+    def auto_insert(cls: Type[T], data: Optional[Dict[str, Any]] = None, **kwarg) -> T:
         """自动插入数据"""
         raise NotImplementedError
 
@@ -180,7 +184,12 @@ class MioOrm:
                 __tablename__ = table_name or cls.__name__.lower()
 
                 @classmethod
-                def add(cls: Type[T], **kwarg) -> T:
+                def add(
+                    cls: Type[T],
+                    data: Optional[Dict[str, Any]] = None,
+                    convert_json: bool = True,
+                    **kwarg,
+                ) -> T:
                     """新增行
 
                     Args:
@@ -190,19 +199,22 @@ class MioOrm:
                     :return: 行对象
                     """
 
-                    for k, v in kwarg.items():
-                        if isinstance(v, (dict, list)):
-                            kwarg[k] = json.dumps(v, ensure_ascii=False)
-                    data = cls(**kwarg)
-
+                    model_data = cls(
+                        **_merge_dict(
+                            data,
+                            kwarg,
+                            cls,
+                            convert_json=convert_json,
+                        ),
+                    )
                     try:
-                        db.add(data)
+                        db.add(model_data)
                         db.commit()
                     except Exception:
                         db.rollback()
                         raise
 
-                    return data
+                    return model_data
 
                 @classmethod
                 def batch_add(cls, data_list: List[Dict[str, Any]]) -> None:
@@ -242,20 +254,34 @@ class MioOrm:
                     )
 
                 @classmethod
-                def get_by_field(cls, field: str, value: str):
+                def get_by_field(cls, field: str, value: str, allow_multiple=False):
                     """根据字段查询行"""
 
                     obj = db.query(cls)
                     if not hasattr(cls, field):
                         raise ValueError(f"Invalid field: {field}")
-                    return obj.filter(getattr(cls, field) == value).first()
+                    res = obj.filter(getattr(cls, field) == value).limit(2).all()
+                    if not allow_multiple and len(res) > 1:
+                        raise ValueError(f"Multiple results found for {field}: {value}")
+                    return res[0] if res else None
 
                 @classmethod
-                def filter(cls: Type[T], **kwarg) -> List[T]:
+                def filter(
+                    cls: Type[T],
+                    conditions: Optional[Dict[str, Any]] = None,
+                    convert_json: bool = True,
+                    **kwarg,
+                ) -> List[T]:
                     """筛选数据行"""
 
+                    conditions = _merge_dict(
+                        conditions,
+                        kwarg,
+                        cls,
+                        convert_json=convert_json,
+                    )
                     obj = db.query(cls)
-                    for k, v in kwarg.items():
+                    for k, v in conditions.items():
                         if not hasattr(cls, k):
                             raise ValueError(f"Invalid field: {k}")
                         obj = obj.filter(getattr(cls, k) == v)
@@ -270,37 +296,21 @@ class MioOrm:
                 def update(
                     self,
                     data: Optional[Dict[str, Any]] = None,
-                    auto_convert_json: bool = True,
+                    convert_json: bool = True,
                     **kwarg,
                 ):
                     """更新行"""
 
-                    if not data:
-                        data = {}
-
-                    data.update(kwarg)
-
-                    for k, v in data.items():
-                        if isinstance(v, (dict, list)) and auto_convert_json:
-                            data[k] = json.dumps(v, ensure_ascii=False)
-                        else:
-                            raise ValueError(f"Invalid value type: {type(v)}")
+                    data = _merge_dict(
+                        data,
+                        kwarg,
+                        cls,
+                        convert_json=convert_json,
+                    )
                     for k, v in data.items():
                         setattr(self, k, v)
                     db.commit()
                     return self
-
-                def compare_change(self, new_data: Dict[str, Any]) -> List[str]:
-                    """比较新旧数据的变化，返回发生变化的字段名"""
-
-                    for k, v in new_data.items():
-                        if isinstance(v, (dict, list)):
-                            new_data[k] = json.dumps(v, ensure_ascii=False)
-                    changed_fields = []
-                    for key, value in new_data.items():
-                        if str(getattr(self, key)) != str(value):
-                            changed_fields.append(key)
-                    return changed_fields
 
                 def delete(self) -> None:
                     """删除行"""
@@ -314,7 +324,11 @@ class MioOrm:
                         raise
 
                 @classmethod
-                def auto_insert(cls: Type[T], **kwargs) -> T:
+                def auto_insert(
+                    cls: Type[T],
+                    data: Optional[Dict[str, Any]] = None,
+                    **kwargs,
+                ) -> T:
                     """自动插入行 (不存在则新增)
 
                     Args:
@@ -324,17 +338,20 @@ class MioOrm:
                     :return: 行对象
                     """
 
-                    if primary_key in kwargs:
-                        item = cls.get_by_pk(kwargs[primary_key])
+                    data = _merge_dict(data, kwargs, cls, convert_json=True)
+                    if primary_key in data:
+                        item = cls.get_by_pk(data[primary_key])
                         if item:
-                            return item.update(kwargs)
-                    return cls.add(**kwargs)
+                            return item.update(data)
+                    return cls.add(**data)
 
                 @classmethod
                 def auto_insert_by_field(
                     cls: Type[T],
                     field: str,
                     value: str,
+                    data: Optional[Dict[str, Any]] = None,
+                    convert_json: bool = True,
                     **kwargs,
                 ) -> T:
                     """根据字段自动插入行 (不存在则新增)
@@ -348,10 +365,11 @@ class MioOrm:
                     :return: 行对象
                     """
 
+                    data = _merge_dict(data, kwargs, cls, convert_json=convert_json)
                     item = cls.get_by_field(field, value)
                     if item:
-                        return item.update(data=kwargs)
-                    return cls.add(**kwargs)
+                        return item.update(data=data)
+                    return cls.add(**data)
 
                 @classmethod
                 def sqa_query(cls: Type[T]) -> Query[T]:
@@ -368,3 +386,40 @@ class MioOrm:
             return ModelClass
 
         return modal_class_wrapper
+
+
+def _merge_dict(
+    base_dict: Optional[Dict[str, Any]],
+    new_dict: Optional[Dict[str, Any]],
+    model_class: Type[MioModel],
+    convert_json: bool = True,
+) -> Dict[str, Any]:
+    """合并字典
+
+    Args:
+    :param base_dict: 基础字典
+    :param new_dict: 新字典
+    :param model_class: 数据模型类
+    :param convert_json: 是否将字典中的 Python 对象转换为 JSON 字符串
+
+    Returns:
+    :return: 合并后的字典
+    """
+
+    base_dict = base_dict or {}
+    new_dict = new_dict or {}
+
+    base_dict.update(new_dict)
+
+    for key in list(base_dict.keys()):
+        if isinstance(getattr(model_class, key), Callable):
+            raise TypeError(f"Invalid field: {key} is a function")
+        if not hasattr(model_class, key):
+            raise ValueError(f"Invalid field: {key}")
+        if isinstance(base_dict[key], (dict, list)):
+            if convert_json:
+                base_dict[key] = json.dumps(base_dict[key], ensure_ascii=False)
+            else:
+                raise ValueError(f"Invalid value type: {type(base_dict[key])}")
+
+    return base_dict
