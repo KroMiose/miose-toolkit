@@ -73,6 +73,9 @@ def test_orm():
     retrieved_data3 = DBTest2.get_by_pk("1")
     assert retrieved_data3 and retrieved_data3.name == "TestName2"
 
+    # 测试转化字典
+    assert retrieved_data3.to_dict()["name"] == "TestName2"
+
     # 测试删除数据
     retrieved_data3.delete()
     deleted_data2 = DBTest2.get_by_pk("1")
@@ -131,6 +134,17 @@ def test_orm():
         pass
     else:
         raise Exception("Failed to filter data with specified fields")
+    
+    # 测试筛选结果字典
+    filtered_data2 = DBTest2.filter_to_dict(
+        conditions={DBTest2.name: "AutoInsertName"},
+        fields=[DBTest2.name],
+        order_by=[desc(DBTest2.id)],
+        limit=1,
+        offset=0,
+    )
+    dic = filtered_data2[0]
+    assert dic["name"] == "AutoInsertName" and "id" not in dic
 
     # 关闭数据库连接
     db1.close_db_connection()

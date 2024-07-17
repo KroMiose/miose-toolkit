@@ -7,6 +7,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.query import Query
+from sqlalchemy.orm.state import InstanceState
 
 try:
     import ujson as json  # type: ignore
@@ -69,6 +70,20 @@ class MioModel:
         raise NotImplementedError
 
     @classmethod
+    def filter_to_dict(
+        cls: Type[T],
+        conditions: Optional[Dict[Union[str, InstrumentedAttribute], Any]] = None,
+        fields: Optional[List[InstrumentedAttribute]] = None,
+        order_by: Optional[List[UnaryExpression]] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+        convert_json: bool = True,
+        **kwarg,
+    ) -> List[Dict[str, Any]]:
+        """筛选数据行"""
+        raise NotImplementedError
+
+    @classmethod
     def get_all(
         cls: Type[T],
         fields: Optional[List[InstrumentedAttribute]] = None,
@@ -86,6 +101,10 @@ class MioModel:
 
     def delete(self) -> None:
         """删除行"""
+        raise NotImplementedError
+
+    def to_dict(self) -> Dict[str, Any]:
+        """转换为字典"""
         raise NotImplementedError
 
     @classmethod
@@ -284,22 +303,22 @@ class MioOrm:
                     """
 
                     return (
-                        (db.query(*fields) if fields else db.query(cls))
+                        (db.query(cls, *fields) if fields else db.query(cls))
                         .filter(getattr(cls, primary_key) == pk_value)
                         .first()
                     )
 
                 @classmethod
                 def get_by_field(
-                    cls,
+                    cls: Type[T],
                     field: InstrumentedAttribute,
                     value: str,
                     fields: Optional[List[InstrumentedAttribute]] = None,
                     allow_multiple=False,
-                ):
+                ) -> Optional[T]:
                     """根据字段查询行"""
 
-                    obj = db.query(*fields) if fields else db.query(cls)
+                    obj = db.query(cls, *fields) if fields else db.query(cls)
                     if not hasattr(cls, field.key):
                         raise ValueError(f"Invalid field: {field}")
                     res = obj.filter(getattr(cls, field.key) == value).limit(2).all()
@@ -329,7 +348,7 @@ class MioOrm:
                         convert_json=convert_json,
                     )
 
-                    obj = db.query(*fields) if fields else db.query(cls)
+                    obj = db.query(cls, *fields) if fields else db.query(cls)
                     for k, v in merged_conditions.items():
                         if not hasattr(cls, k):
                             raise ValueError(f"Invalid field: {k}")
@@ -341,13 +360,53 @@ class MioOrm:
                     return obj.all()
 
                 @classmethod
+                def filter_to_dict(
+                    cls: Type[T],
+                    conditions: Optional[
+                        Dict[Union[str, InstrumentedAttribute], Any]
+                    ] = None,
+                    fields: Optional[List[InstrumentedAttribute]] = None,
+                    order_by: Optional[List[UnaryExpression]] = None,
+                    limit: Optional[int] = None,
+                    offset: Optional[int] = None,
+                    convert_json: bool = True,
+                    **kwarg,
+                ) -> List[Dict[str, Any]]:
+                    """筛选数据行"""
+
+                    merged_conditions = _merge_dict(
+                        conditions,
+                        kwarg,
+                        cls,
+                        convert_json=convert_json,
+                    )
+
+                    obj = db.query(cls, *fields) if fields else db.query(cls)
+                    for k, v in merged_conditions.items():
+                        if not hasattr(cls, k):
+                            raise ValueError(f"Invalid field: {k}")
+                        obj = obj.filter(getattr(cls, k) == v)
+                    if order_by:
+                        obj = obj.order_by(*order_by)
+                    obj = obj.limit(limit) if limit else obj
+                    obj = obj.offset(offset) if offset else obj
+                    return [
+                        {
+                            k: v
+                            for k, v in d._asdict().items()  # type: ignore
+                            if not isinstance(v, ModelClass)
+                        }
+                        for d in obj.all()
+                    ]
+
+                @classmethod
                 def get_all(
                     cls: Type[T],
                     fields: Optional[List[InstrumentedAttribute]] = None,
                 ) -> List[T]:
                     """查询所有行"""
 
-                    return (db.query(*fields) if fields else db.query(cls)).all()
+                    return (db.query(cls, *fields) if fields else db.query(cls)).all()
 
                 def update(
                     self,
@@ -378,6 +437,18 @@ class MioOrm:
                     except Exception:
                         db.rollback()
                         raise
+
+                def to_dict(self) -> Dict[str, Any]:
+                    """转换为字典"""
+
+                    ret_dict = {}
+                    for key in list(self.__dict__.keys()):
+                        if isinstance(getattr(self, key), (InstanceState, Query)):
+                            continue
+                        if key.startswith("_sa_"):
+                            continue
+                        ret_dict[key] = getattr(self, key)
+                    return ret_dict
 
                 @classmethod
                 def auto_insert(
