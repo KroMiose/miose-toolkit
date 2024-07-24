@@ -150,7 +150,7 @@ class MioOrm:
             Path(root).mkdir(parents=True, exist_ok=True)
         self._db_url = db_url
         self._db_args = kwarg
-        self._create_db_connection(db_url, **kwarg)
+        self._create_db_connection(db_url)
 
         database_type = db_url.split("://")[0]
 
