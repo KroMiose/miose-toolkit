@@ -25,7 +25,7 @@ def fetch(
     timeout: int = 60,
     ssl_verify: bool = True,
     allow_redirects=True,
-) -> Tuple[int, str, requests.Response]:
+) -> Tuple[int, requests.Response]:
     """发起同步请求
 
     Args:
@@ -73,7 +73,7 @@ def fetch(
             allow_redirects=allow_redirects,
         ),
     )
-    return resp.status_code, resp.text, resp
+    return resp.status_code, resp
 
 
 async def async_fetch(
@@ -87,7 +87,7 @@ async def async_fetch(
     timeout: int = 60,
     ssl_verify: bool = True,
     allow_redirects: bool = True,
-) -> Tuple[int, str, aiohttp.ClientResponse]:
+) -> Tuple[int, aiohttp.ClientResponse]:
     if headers is None:
         headers = {}
     if cookies:
@@ -114,4 +114,4 @@ async def async_fetch(
         ssl=ssl_verify,
     ) as resp:
         resp = cast(aiohttp.ClientResponse, resp)
-        return resp.status, await resp.text(), resp
+        return resp.status, resp

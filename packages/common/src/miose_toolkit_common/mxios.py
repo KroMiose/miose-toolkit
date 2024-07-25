@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast
 
 import aiohttp
 import requests
@@ -19,11 +19,9 @@ class Response:
 
     def __init__(
         self,
-        text: str,
         status_code: int,
         raw_resp: requests.Response,
     ):
-        self.text: str = text
         self.status_code: int = status_code
         self._raw_resp: Union[requests.Response, aiohttp.ClientResponse] = raw_resp
 
@@ -33,10 +31,12 @@ class Response:
         return self._raw_resp
 
     def __str__(self) -> str:
-        return f"Response(status_code={self.status_code}, content={self.text})"
+        return (
+            f"Response(status_code={self.status_code}, content={self.raw_resp.content})"
+        )
 
     def json(self) -> Any:
-        return json.loads(self.text)
+        return cast(requests.Response, self.raw_resp).json()
 
 
 class AioResponse(Response):
@@ -44,11 +44,9 @@ class AioResponse(Response):
 
     def __init__(
         self,
-        text: str,
         status_code: int,
         raw_resp: aiohttp.ClientResponse,
     ):
-        self.text: str = text
         self.status_code: int = status_code
         self._raw_resp: Union[requests.Response, aiohttp.ClientResponse] = raw_resp
 
@@ -120,7 +118,7 @@ class Mxios:
         if not (url.startswith(("http://", "https://"))):
             url = self.base_url + url
 
-        resp_status_code, resp_text, raw_resp = fetch(
+        resp_status_code, raw_resp = fetch(
             url=url,
             method=method,
             params=params,
@@ -132,7 +130,7 @@ class Mxios:
             allow_redirects=allow_redirects,
         )
 
-        return Response(text=resp_text, status_code=resp_status_code, raw_resp=raw_resp)
+        return Response(status_code=resp_status_code, raw_resp=raw_resp)
 
     async def async_fetch(
         self,
@@ -179,23 +177,19 @@ class Mxios:
         if not (url.startswith(("http://", "https://"))):
             url = self.base_url + url
 
-        resp_status_code, resp_text, raw_resp = await async_fetch(
+        resp_status_code, raw_resp = await async_fetch(
             url=url,
             method=method,
             params=params,
             data=data,
             headers=headers,
-            proxy_server=self.proxy_server or proxy_server,
+            proxy_server=proxy_server or self.proxy_server,
             timeout=timeout,
             ssl_verify=ssl_verify,
             allow_redirects=allow_redirects,
         )
 
-        return AioResponse(
-            text=resp_text,
-            status_code=resp_status_code,
-            raw_resp=raw_resp,
-        )
+        return AioResponse(status_code=resp_status_code, raw_resp=raw_resp)
 
     def get(
         self,
