@@ -40,25 +40,30 @@ async def test_async_mxios():
 
     resp: AioResponse = await mxios.async_fetch("get", "/get")
     assert resp.status_code == 200
-    assert resp.json()["url"] == "https://httpbin.org/get"
+    assert (await resp.json())["url"] == "https://httpbin.org/get"
 
     resp = await mxios.async_get("/get", params={"key": "value"})
     assert resp.status_code == 200
-    assert resp.json()["url"] == "https://httpbin.org/get?key=value"
-    assert resp.json()["args"] == {"key": "value"}
+    assert (await resp.json())["url"] == "https://httpbin.org/get?key=value"
+    assert (await resp.json())["args"] == {"key": "value"}
 
     resp = await mxios.async_post("/post", data={"key": "value"})
     assert resp.status_code == 200
-    assert resp.json()["url"] == "https://httpbin.org/post"
-    assert json.loads(resp.json()["data"]) == {"key": "value"}
+    assert (await resp.json())["url"] == "https://httpbin.org/post"
+    assert json.loads((await resp.json())["data"]) == {"key": "value"}
 
     resp = await mxios.async_put("/put", data={"key": "value"})
     assert resp.status_code == 200
-    assert resp.json()["url"] == "https://httpbin.org/put"
-    assert json.loads(resp.json()["data"]) == {"key": "value"}
+    assert (await resp.json())["url"] == "https://httpbin.org/put"
+    assert json.loads((await resp.json())["data"]) == {"key": "value"}
 
     resp = await mxios.async_delete("/delete", params={"key": "value"})
     assert resp.status_code == 200
-    assert resp.json()["url"] == "https://httpbin.org/delete?key=value"
+    assert (await resp.json())["url"] == "https://httpbin.org/delete?key=value"
 
-    # asyncio.run(async_test())
+
+if __name__ == "__main__":
+    import asyncio
+
+    # test_mxios()
+    asyncio.run(test_async_mxios())

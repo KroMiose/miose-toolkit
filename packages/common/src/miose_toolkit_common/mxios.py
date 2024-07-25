@@ -46,9 +46,11 @@ class AioResponse(Response):
         self,
         status_code: int,
         raw_resp: aiohttp.ClientResponse,
+        resp_bytes: bytes,
     ):
         self.status_code: int = status_code
         self._raw_resp: Union[requests.Response, aiohttp.ClientResponse] = raw_resp
+        self._resp_bytes: bytes = resp_bytes
 
     @property
     def raw_resp(self) -> aiohttp.ClientResponse:
@@ -56,6 +58,9 @@ class AioResponse(Response):
         if isinstance(self._raw_resp, aiohttp.ClientResponse):
             return self._raw_resp
         raise TypeError("raw_resp is not aiohttp.ClientResponse")
+
+    async def json(self) -> Any:
+        return json.loads(self._resp_bytes.decode())
 
 
 class Mxios:
@@ -177,7 +182,7 @@ class Mxios:
         if not (url.startswith(("http://", "https://"))):
             url = self.base_url + url
 
-        resp_status_code, raw_resp = await async_fetch(
+        resp_status_code, raw_resp, resp_bytes = await async_fetch(
             url=url,
             method=method,
             params=params,
@@ -189,7 +194,9 @@ class Mxios:
             allow_redirects=allow_redirects,
         )
 
-        return AioResponse(status_code=resp_status_code, raw_resp=raw_resp)
+        return AioResponse(
+            status_code=resp_status_code, raw_resp=raw_resp, resp_bytes=resp_bytes
+        )
 
     def get(
         self,

@@ -87,7 +87,7 @@ async def async_fetch(
     timeout: int = 60,
     ssl_verify: bool = True,
     allow_redirects: bool = True,
-) -> Tuple[int, aiohttp.ClientResponse]:
+) -> Tuple[int, aiohttp.ClientResponse, bytes]:
     if headers is None:
         headers = {}
     if cookies:
@@ -114,4 +114,4 @@ async def async_fetch(
         ssl=ssl_verify,
     ) as resp:
         resp = cast(aiohttp.ClientResponse, resp)
-        return resp.status, resp
+        return resp.status, resp, await resp.read()
