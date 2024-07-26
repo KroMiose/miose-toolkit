@@ -195,7 +195,9 @@ class Mxios:
         )
 
         return AioResponse(
-            status_code=resp_status_code, raw_resp=raw_resp, resp_bytes=resp_bytes
+            status_code=resp_status_code,
+            raw_resp=raw_resp,
+            resp_bytes=resp_bytes,
         )
 
     def get(
